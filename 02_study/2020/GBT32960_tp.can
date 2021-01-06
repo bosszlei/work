@@ -1,0 +1,660 @@
+/*@!Encoding:936*/
+variables
+{
+  mstimer RCB_Timer;
+  mstimer RCB_1B0_Consefrm_timeout_Timer;
+  
+  message RCB_1B0 Msg_RCB_1B0;
+  message RCB_1B1 Msg_RCB_1B1;
+
+  const byte TRUE  = 1;
+  const byte FALSE = 0;
+
+  const int timeslot1ms  = 1;
+  const int timeslot10ms  = 10;
+  const int timeslot20ms  = 20;
+  
+  /*
+  struct st_TP_RCB_1B0{
+    byte TpSN;  //
+    byte TpDlc; //multi data data length
+    byte TpDataIndex;
+    byte TpDataBuf[TP_DATA_BUF_SIZE];//multi data buffer
+  };
+    struct st_TP_RCB_1B0 st_Tp_RCB_Info;
+  */
+
+typedef struct{
+	byte  RCB_sys_num1;
+	word RCB_sys_volt1;
+	word RCB_sys_curr1;
+	
+	byte  RCB_sys_num2;
+	word RCB_sys_volt2;
+	word RCB_sys_curr2;
+	
+}st_RCB_1B0_frame_fmt;
+
+  /*data buffer for each environment variables
+  const byte TP_DATA_BUF_SIZE = 100;
+*/
+
+/*  
+  byte TpDataBuf_RCB_1B0[TP_DATA_BUF_SIZE];
+  byte TpDataBuf_RCB_1B1[TP_DATA_BUF_SIZE];
+  */
+  
+  enum EN_ConsecutiveFrame_FS{//define consecutive frame send status
+  	SEND_ST_CONTINUE = 0,
+	SEND_ST_WAIT,
+	SEND_ST_STOP,
+	SEND_ST_MAX
+  };
+
+  enum EN_ConsecutiveFrame_FS ConsecutiveFrm_1B0_FS = SEND_ST_STOP;
+  int ConsecutiveFrm_1B0_BS = -1;
+  byte ConsecutiveFrm_1B0_stmin = 0;
+
+
+  int ConsecutiveFrm_1B1_BS = -1;
+  byte ConsecutiveFrm_1B1_stmin = 0;
+}
+
+on start
+{
+  	Init();
+	Send_Msg_RCB_1B0();
+	Send_Msg_RCB_1B1();
+	setTimer(RCB_Timer,200);//cyc 200ms
+}
+
+on timer RCB_Timer
+{
+	Send_Msg_RCB_1B0();
+	Send_Msg_RCB_1B1();
+	setTimer(RCB_Timer,200);//cyc 200ms
+}
+
+on timer RCB_1B0_Consefrm_timeout_Timer
+{
+	clear_ConsecutiveFrm_1B0_var(); 
+}
+
+on envVar Env_RCB_SYS_CURR_1
+{
+	word current = getValue(Env_RCB_SYS_CURR_1)*10+1000;
+	TpDataBuf_RCB_1B0[4] = (byte)(current >> 8);
+	TpDataBuf_RCB_1B0[5] = (byte)current;
+}
+
+on envVar Env_RCB_SYS_CURR_2
+{
+   	word current = getValue(Env_RCB_SYS_CURR_2)*10+1000;
+    	TpDataBuf_RCB_1B0[9] = (byte)(current >> 8);
+   	TpDataBuf_RCB_1B0[10] = (byte)current;
+}
+
+on envVar Env_RCB_SYS_VOLT_1
+{
+  float sum;
+  sum=getValue(Env_RCB_CELL_VOLT_SENS1)+getValue(Env_RCB_CELL_VOLT_SENS2)+getValue(Env_RCB_CELL_VOLT_SENS3)
+    +getValue(Env_RCB_CELL_VOLT_SENS4)+getValue(Env_RCB_CELL_VOLT_SENS5)+getValue(Env_RCB_CELL_VOLT_SENS6)
+    +getValue(Env_RCB_CELL_VOLT_SENS7)+getValue(Env_RCB_CELL_VOLT_SENS8);
+  
+  putValue(Env_RCB_SYS_VOLT_1,sum);
+}
+
+on envVar Env_RCB_SYS_VOLT_2
+{
+  float sum;
+  sum=getValue(Env_RCB_CELL_VOLT_SENS9)+getValue(Env_RCB_CELL_VOLT_SENS10)+getValue(Env_RCB_CELL_VOLT_SENS11)
+    +getValue(Env_RCB_CELL_VOLT_SENS12)+getValue(Env_RCB_CELL_VOLT_SENS13)+getValue(Env_RCB_CELL_VOLT_SENS14)
+    +getValue(Env_RCB_CELL_VOLT_SENS15)+getValue(Env_RCB_CELL_VOLT_SENS16);
+  
+  putValue(Env_RCB_SYS_VOLT_2,sum);
+}
+
+on envVar Env_RCB_CELL_TEMP_SENS1
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS1)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS1)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=1;
+  
+  Send_Msg_RCB_1B1();
+  
+}
+
+on envVar Env_RCB_CELL_VOLT_SENS1
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS1)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS1)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=1;
+ 
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_TEMP_SENS2
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS2)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS2)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=2;
+  
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_VOLT_SENS2
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS2)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS2)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=2;
+ 
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_TEMP_SENS3
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS3)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS3)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=3;
+ 
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_VOLT_SENS3
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS3)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS3)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=3;
+ 
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_TEMP_SENS4
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS4)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS4)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=4;
+  
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_VOLT_SENS4
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS4)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS4)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=4;
+  
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_TEMP_SENS5
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS5)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS5)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=5;
+  
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_VOLT_SENS5
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS5)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS5)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=5;
+  
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_TEMP_SENS6
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS6)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS6)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=6;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_VOLT_SENS6
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS6)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS6)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=6;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_TEMP_SENS7
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS7)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS7)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=7;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_VOLT_SENS7
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS7)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS7)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=7;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_TEMP_SENS8
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS8)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS8)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=7;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_VOLT_SENS8
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS8)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS8)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=8;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_TEMP_SENS9
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS9)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS9)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=1;
+  Send_Msg_RCB_1B1();
+}
+on envVar Env_RCB_CELL_VOLT_SENS9
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS9)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS9)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=1;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_TEMP_SENS10
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS10)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS10)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=2;
+  Send_Msg_RCB_1B1();
+}
+on envVar Env_RCB_CELL_VOLT_SENS10
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS10)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS10)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=2;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_TEMP_SENS11
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS11)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS11)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=3;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_VOLT_SENS11
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS11)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS11)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=3;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_TEMP_SENS12
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS12)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS12)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=4;
+  Send_Msg_RCB_1B1();
+}
+on envVar Env_RCB_CELL_VOLT_SENS12
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS12)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS12)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=4;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_TEMP_SENS13
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS13)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS13)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=5;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_VOLT_SENS13
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS13)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS13)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=5;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_TEMP_SENS14
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS14)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS14)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=6;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_VOLT_SENS14
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS14)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS14)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=6;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_TEMP_SENS15
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS15)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS15)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=7;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_VOLT_SENS15
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS15)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS15)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=7;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_TEMP_SENS16
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS16)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS16)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=8;
+  Send_Msg_RCB_1B1();
+}
+
+on envVar Env_RCB_CELL_VOLT_SENS16
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS16)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS16)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=8;
+  Send_Msg_RCB_1B1();
+}
+
+/*update value of each signal*/
+void Msg_RCB_1B0_Updata()
+{
+  float sum_volt1,sum_volt2;
+  sum_volt1=getValue(Env_RCB_CELL_VOLT_SENS1)+getValue(Env_RCB_CELL_VOLT_SENS2)+getValue(Env_RCB_CELL_VOLT_SENS3)
+    +getValue(Env_RCB_CELL_VOLT_SENS4)+getValue(Env_RCB_CELL_VOLT_SENS5)+getValue(Env_RCB_CELL_VOLT_SENS6)
+    +getValue(Env_RCB_CELL_VOLT_SENS7)+getValue(Env_RCB_CELL_VOLT_SENS8);
+  
+  sum_volt2=getValue(Env_RCB_CELL_VOLT_SENS9)+getValue(Env_RCB_CELL_VOLT_SENS10)+getValue(Env_RCB_CELL_VOLT_SENS11)
+    +getValue(Env_RCB_CELL_VOLT_SENS12)+getValue(Env_RCB_CELL_VOLT_SENS13)+getValue(Env_RCB_CELL_VOLT_SENS14)
+    +getValue(Env_RCB_CELL_VOLT_SENS15)+getValue(Env_RCB_CELL_VOLT_SENS16);
+  
+  Msg_RCB_1B0.RCB_SYS_NUM=1;
+  Msg_RCB_1B0.RCB_SYS_VOLT=sum_volt1*10;
+  Msg_RCB_1B0.RCB_SYS_CURR=(getValue(Env_RCB_SYS_CURR_1)+1000)*10;
+  Send_Msg_RCB_1B0();
+  
+  Msg_RCB_1B0.RCB_SYS_NUM=2;
+  Msg_RCB_1B0.RCB_SYS_VOLT=sum_volt2*10;
+  Msg_RCB_1B0.RCB_SYS_CURR=(getValue(Env_RCB_SYS_CURR_2)+1000)*10;
+  Send_Msg_RCB_1B0();
+}
+
+void Msg_RCB_1B1_Updata()
+{
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS1)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS1)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=1;
+  Send_Msg_RCB_1B1();
+
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS2)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS2)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=2;
+  Send_Msg_RCB_1B1();
+  
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS3)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS3)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=3;
+  Send_Msg_RCB_1B1();
+  
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS4)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS4)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=4;
+  Send_Msg_RCB_1B1(); 
+  
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS5)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS5)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=5;
+  Send_Msg_RCB_1B1();
+  
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS6)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS6)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=6;
+  Send_Msg_RCB_1B1();
+  
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS7)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS7)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=7;
+  Send_Msg_RCB_1B1();
+  
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS8)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS8)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=1;
+  Msg_RCB_1B1.RCB_CELL_NUM=8;
+  Send_Msg_RCB_1B1();
+  
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS9)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS9)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=1;
+  Send_Msg_RCB_1B1();
+
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS10)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS10)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=2;
+  Send_Msg_RCB_1B1();
+
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS11)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS11)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=3;
+  Send_Msg_RCB_1B1();
+
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS12)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS12)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=4;
+  Send_Msg_RCB_1B1();
+
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS13)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS13)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=5;
+  Send_Msg_RCB_1B1();
+
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS14)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS14)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=6;
+  Send_Msg_RCB_1B1();
+
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS15)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS15)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=7;
+  Send_Msg_RCB_1B1();
+
+  Msg_RCB_1B1.RCB_CELL_TEMP_SENS_VAL=getValue(Env_RCB_CELL_TEMP_SENS16)+40;
+  Msg_RCB_1B1.RCB_CELL_VOLT_SENS_VAL=getValue(Env_RCB_CELL_VOLT_SENS16)*1000;
+  Msg_RCB_1B1.RCB_SYS_NUM=2;
+  Msg_RCB_1B1.RCB_CELL_NUM=8;
+  Send_Msg_RCB_1B1();
+}
+
+/*send frame*/
+void Send_Msg_RCB_1B0(void)
+{	
+	byte i;
+	/*frame FF*/
+	Msg_RCB_1B0.byte(0) = 0x10 | 0x00;
+	Msg_RCB_1B0.byte(1) = 0x0A;
+	Msg_RCB_1B0.byte(2) = 0x01;
+	Msg_RCB_1B0.byte(3) = TpDataBuf_RCB_1B0[2];
+	Msg_RCB_1B0.byte(4) = TpDataBuf_RCB_1B0[3];
+	Msg_RCB_1B0.byte(5) = TpDataBuf_RCB_1B0[4];
+	Msg_RCB_1B0.byte(6) = TpDataBuf_RCB_1B0[5];
+	Msg_RCB_1B0.byte(7) = TpDataBuf_RCB_1B0[6];
+	output(Msg_RCB_1B0);
+
+	/*frame CF*/
+	if (ConsecutiveFrm_1B0_FS == SEND_ST_CONTINUE &&\
+		ConsecutiveFrm_1B0_BS != -1) {
+		Msg_RCB_1B0.byte(0) = 0x20 | 0x01;
+		Msg_RCB_1B0.byte(1) = TpDataBuf_RCB_1B0[7];
+		Msg_RCB_1B0.byte(2) = TpDataBuf_RCB_1B0[8];
+		Msg_RCB_1B0.byte(3) = TpDataBuf_RCB_1B0[9];
+		Msg_RCB_1B0.byte(4) = TpDataBuf_RCB_1B0[10];
+		Msg_RCB_1B0.byte(5) = 0x0;
+		Msg_RCB_1B0.byte(6) = 0x0;
+		Msg_RCB_1B0.byte(7) = 0x0;
+		output(Msg_RCB_1B0);
+		//cancelTimer(RCB_1B0_Consefrm_timeout_Timer);
+	}
+
+}
+
+void Send_Msg_RCB_1B1(void)
+{
+	
+}
+
+on message 0x1B3
+{
+	if (this.byte(0) & 0xF0 == 0x30) {
+		switch (this.byte(0) & 0x0F)
+		{
+			case 0x00:
+				ConsecutiveFrm_1B0_FS = SEND_ST_CONTINUE;
+				break;
+			case 0x01:
+				ConsecutiveFrm_1B0_FS = SEND_ST_WAIT;
+				break;
+			case 0x02:
+				ConsecutiveFrm_1B0_FS = SEND_ST_STOP;
+				break;
+			default:
+				break;
+		}
+		ConsecutiveFrm_1B0_BS = this.byte(1);
+		ConsecutiveFrm_1B0_stmin = this.byte(2);	
+		setTimer(RCB_1B0_Consefrm_timeout_Timer,timeslot10ms);
+	} else {
+		/*reception frame is not consecutive frame, and do nothing*/
+	}
+	
+}
+
+on message 0x1B4
+{
+	switch (this.byte(0) & 0xF0)
+	{
+		case 0x00:
+			/*single frame*/
+			break;
+		case 0x10:
+			/*first frame*/
+			break;
+		case 0x20:
+			/*consecutive frame*/
+			break;
+		case 0x30:
+			/*flow control frame*/
+			TpFCRecvFlag_1B1_Flag = TRUE;
+			break;
+		default:
+			break;
+	}
+
+	ConsecutiveFrm_1B1_BS = this.byte(1);
+	ConsecutiveFrm_1B1_stmin = this.byte(2);
+}
+
+void Init(void)
+{
+	/*
+	byte i;
+	for(i = 0; i < TP_DATA_BUF_SIZE; i++){
+	    	TpDataBuf_RCB_1B0[i] = 0x0;
+	}
+	for(i = 0; i < TP_DATA_BUF_SIZE; i++){
+	    	TpDataBuf_RCB_1B1[i] = 0x0;
+	}
+	*/
+}
+
+void clear_ConsecutiveFrm_1B0_var(void)
+{ 
+	ConsecutiveFrm_1B0_FS = SEND_ST_STOP;
+	byte ConsecutiveFrm_1B0_BS = 0;
+	byte ConsecutiveFrm_1B0_stmin = 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
