@@ -1,0 +1,600 @@
+
+
+代码路径：
+git clone ssh://igerrit:29418/Src/iAutoPlatform/Micon/Hancock -b Hancock/Hancock_master
+
+
+*****如何提交代码****************************************************************************************：
+git add f1
+git commit -m "modify build err"
+git push origin HEAD:refs/for/Hancock/Hancock_master 
+
+gitdir=$(git rev-parse --git-dir); scp -p -P 29418 zhanglei3@igerrit:hooks/commit-msg ${gitdir}/hooks/
+git commit --amend --no-edit
+git push origin HEAD:refs/for/Hancock/Hancock_master
+
+
+*****如何版本回退****************************************************************************************：
+
+git reset --hard 5282eadb914e33ce6e178c2135ab9693c2d98e15
+
+其中5282eadb914e33ce6e178c2135ab9693c2d98e15为提交号
+
+*****************************************************************************************************
+如何将换行符改为空格符：
+	1.选中要替换的内容
+	2.ctrl + F 全部替换
+	3.查找目标：    \r\n
+	  替换为：      ' '(一个空格)
+	  
+
+
+如何更新修改代码：
+	1. git diff Source/Module/BCAN/BCAN_APL.c > bcan.diff        --------->将修改地方制成一个diff文件
+	2.将diff文件拷贝到工程目录下
+	3.git apply bcan.diff                                        --------->将修改地方复制到自己的工程文件中
+
+切换代码路径：cd /cygdrive/f/02_codes/0319_bcan_working/Hancock
+--------------------------------------------------------------------------------------------------------------------------------------
+BCAN代码理解
+
+1.CAN驱动寄存器相关
+  RSCAN0RFISTS — Receive FIFO Buffer Interrupt Flag Status Register  
+  接收中断寄存器，32位，用来判断是否发生中断请求
+  
+  RSCAN0RFSTSx — Receive FIFO Buffer Status Register (x = 0 to 7)
+  接收buffer状态寄存器
+  
+  RSCAN0RFIDx — Receive FIFO Buffer Access ID Register (x = 0 to 7)
+  
+  RSCAN0GCTR — Global Control Register
+  
+  RSCAN0TMIDp — Transmit Buffer ID Register (p = 0 to 63)
+  
+  RSCAN0TMCp — Transmit Buffer Control Register (p = 0 to 63)
+  
+  RSCAN0TMCp — Transmit Buffer Control Register (p = 0 to 63)
+ 
+  Setting this bit to 1 transmits the message stored in the transmit buffer.
+  
+  
+  RSCAN0TMIDp — Transmit Buffer ID Register (p = 0 to 63)
+     发送缓存寄存器
+	     bit31     TMIDE      Transmit Buffer IDE
+		 bit30     TMRTR      Transmit Buffer RTR
+		 bit29     THLEN      Transmit History Data Store Enable
+		 bit28~0   TMID       Transmit Buffer ID Data
+  
+2.volatile是一个类型修饰符（type specifier）.volatile的作用是作为指令关键字，确保本条指令不会因编译器的优化而省略，且要求每次直接读值。
+  精确地说就是，编译器在用到这个变量时必须每次都小心地重新读取这个变量的值，而不是使用保存在寄存器里的备份
+  volatile应该解释为“直接存取原始内存地址”比较合适
+  
+3.
+  #define RSCAN0RFSTSx(x)	(*(volatile can_rfsts_def *)(RSCAN0_BASE_ADD+x*0x04+0X000000D8))  
+  
+  (CAN_Msg_Buf*) &(RSCAN0RFIDx(FIFO_index));
+  类比int* a;  
+  
+ pdll_rx_pdu->can_id |= ((unsigned long)pdrv_rx_frm->Id << 18); 
+ pdll_rx_pdu->can_id =pdll_rx_pdu->can_id |((unsigned long)pdrv_rx_frm->Id << 18); 
+  
+4.ER 什么类型？
+
+
+5.if (BCAN_FW_filterTxFrame(dll_tx_sdu))  ？？？
+  
+  extern BOOL BCAN_FW_filterTxFrame(const BCANDLLTxSduFmt* pdll_tx_sdu)
+  
+  DAM是对SOC传输的，所以它的收就是  SOC->MCU   发就是  MCU->SOC
+  而BCAN是对CAN总线的， 它的收就是  CAN总线—>BCAN   发就是BCAN->CAN总线
+
+6.DAMC Receive Interface 此处的接收是相对于DAM模块而言的，receive是指soc->micon的数据，send是指micon->soc的数据
+
+---------------------------------------------------event事件理解-----------------------------------------------------------------------------------------------  
+  
+extern void TSK_BCAN_DLL(VP_INT exinf)  //Task函数
+{
+	ER errcode;
+	FLGPTN pattern;	
+	BCANDLLEvent event;
+	unsigned char evt_cnt;
+
+	while (1) {
+		errcode = wai_flg(FLG_ID_BCAN_DLL, BCAN_DLL_PTN_ALL, TWF_ORW, &pattern);  
+		/
+		*FLG_ID_BCAN_DLL是被调的task，BCAN_DLL_PTN_ALL是置的事件，pattern是一个32位的long型数据，每一位对应一个数据，因此从理论上来说，最多存在32个事件
+		   TWF_ORW是固有的格式
+		*/
+		if (errcode != E_OK) {  
+			pattern = BCAN_DLL_PTN_NONE;   //如果事件不正确，pattern清零
+		} else {
+			clr_flg(FLG_ID_BCAN_DLL, ~pattern);//event标志清零
+		}
+
+		evt_cnt = BCAN_DLL_EVT_MIN;
+		while (pattern & BCAN_DLL_PTN_ALL) {  //BCAN_DLL_PTN_ALL是0x111，有3个事件，与pattern相与，说明事件是DLL层
+			for (; evt_cnt < BCAN_DLL_EVT_MAX; evt_cnt++) {   
+				if (pattern & (0x00000001UL << evt_cnt)) {//一位一位的比对，若存在，则返回真
+					pattern &= ~(0x00000001UL << evt_cnt);//该事件存在后，将该事件所在的位清零
+					event = evt_cnt++;   //先取出event的值，再将count加一，跳出for循环
+					break;
+				}
+			}
+
+			/*event handle*/
+			BCAN_DLL_handleEvent(event);
+		}
+	}
+}
+  
+  
+  
+
+  
+static BOOL BCAN_DLL_fetchTxSdu(BCANDLLTxSduFmt* pdlltxsdu)  //取数据
+{
+	BOOL retval = TRUE;
+	unsigned char head_high, head_low; //定义两个字节，充当数据的头部
+	unsigned char i;
+
+	if ((RB_getBufferStatus(BCAN_DLL_Tx_RingBufNo) != RB_STS_EMPTY) &&\
+		(RB_getBufferOccupySize(BCAN_DLL_Tx_RingBufNo) >= 2)) {//判断当前buffer里数据大小是否大于2，如若不是，帧头都有2字节，说明数据不对，取数据失败
+	
+		/* serch for head */
+		head_high = RB_getRingBuffer(BCAN_DLL_Tx_RingBufNo);//将头部的第一个字节取出来，写指针往后移动一位
+		head_low = RB_getRingBuffer(BCAN_DLL_Tx_RingBufNo); //将头部的第二个字节取出来，写指针往后移动一位
+		while (!((head_high == 0xAA) && (head_low == 0x55))) {  //如果头部的两个字节，有一个数据不对，进入下面的循环
+			head_high = head_low;   //将头部的第二个字节的值给第一个字节，即将第一个字节往后移动一格
+			if (RB_getBufferStatus(BCAN_DLL_Tx_RingBufNo) != RB_STS_EMPTY) {  //判断当前buffer是否为空
+				head_low = RB_getRingBuffer(BCAN_DLL_Tx_RingBufNo);  //若不为空，头部的第二个字节向下移动一格。一直循环，直到找到找到数据的头（即那两个字节0x55  0xAA为止）
+			} else {
+				return FALSE;
+			}
+		}
+
+		/* fetch sdu */
+		if (RB_getBufferOccupySize(BCAN_DLL_Tx_RingBufNo) >= sizeof(BCANDLLTxSduFmt)) {//判断buffer里数据大小是否大于帧格式大小
+			for (i = 0; i < sizeof(BCANDLLTxSduFmt); i++) {
+				*((unsigned char*)pdlltxsdu + i) = RB_getRingBuffer(BCAN_DLL_Tx_RingBufNo);//进行数据拷贝，先进行强制类型转换，再进行copy
+			}
+		} else {
+			retval = FALSE;
+		}
+		
+	} else {
+		retval = FALSE;
+	}
+
+	return retval;
+}
+  
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  RH850  32位操作系统 4个字节
+  
+  走行规制，是指车辆在行走的过程中，禁止某些影响安全的操作，比如果说 看video 等等。所以，看video类似的操作，只能是在 PKB on，也就是停车拉了手刹时，才可以看
+  如果PKB OFF，看视频，画面就会被盖住，只能听到声音
+  
+  
+  
+iTron系统  工业实时操作系统  
+Micon上只有一个芯片  运行的是iTron系统
+Task是个轮询任务，有优先级判断 建立task时要考虑堆栈大小
+task 需要置event事件，在进入task之前，判断是否置该task事件，如果没有，则会退出task，进入下一个task
+
+
+base就是以前做过的机能，新项目可以用到
+  
+ CANoe终端电阻阻值： 120欧姆
+ 
+APL层Rx，收到的数据类型有三种：Meter相关、vehicle info相关、bit data
+其中meter数据直接传，vehicle info的数据先判断有无变化，有变化就传， bit data有自己的传输方式 
+  
+  
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+BCAN调试手顺：
+	打开CS+编译器，连接好CANoe；
+	将代码编译，导入机器当中；
+	断点调试。
+  
+  
+  
+  
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 英语中，状语成分先翻译。 
+ Set the TMTR bit to 1 when the value of TMTRF[1:0] in the RSCAN0TMSTSp register is 00B. 
+ 当RSCAN0TMSTSp寄存器中的TMTRF[1:0]的值为00B时，将TMTR位置1(即将该端子拉高)
+  
+ coordinate 协调
+ 
+  
+
+  
+  
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+截取UART log时
+帧头：9F02
+帧尾：9F03 
+
+CRC冗余检测：两个字节
+
+帧格式：9F 02 84 00 00 00 00 00 00 00 00 00 00 01 02 01 01 02 03 04 05 06 07 08 ef 2f 9f 03
+    
+BCAN波特率  125K 
+  
+  
+  
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#pragma pack 1 强制使结构体中内存连续存放数据，不留内存碎片。
+一般来说，编译器为了提高效率，会自动优化存储结构，例如
+struct ST{
+	char lenth;
+	int sum;
+}
+此时sizeof(ST)=8;
+编译器为了提高效率，会给char分配4个字节与下面的int对齐，而不是本身的1个字节。
+  
+
+初级运算符( )、[ ]、->、.  高于  单目运算符  高于  算数运算符（先乘除后加减）  高于  关系运算符  高于  逻辑运算符（不包括！）  高于  条件运算符  高于  赋值运算符  高于  逗号运算符。
+--------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ 1. BitData信号理解：
+	Speed现在走TP A2(cyc)，包括状态信息和数值
+	PKB走Bitdata，Bitdata里的数据是给上层使用，来源是AT里面的pkb值和硬线值相或的结果（实际情况是，
+	对于不同的车型，硬线和BCAN只会对应一种，因此将其或操作）
+    
+	通信状态判断：(Data 2数据)
+    0：从未收到过
+    1：正常接收
+    2：通讯途绝
+
+
+ 2. Diag 需要的BCAN信号：
+	 Pana Diag :PKB、REV、Speed
+	 Dealer Diag: PKB、REV、Turn SW、BCAN status、Speed、VINNO
+	 Developer Diag: PKB、REV、Speed、Turn SW、 
+
+
+ 3.CAN帧有2种Type，Type 1主要是网络管理相关的帧，Type 2是常见的数据帧等；
+	type 2帧格式： PRI(3 bit) R(1bit) DP(1) PF(16) SA(8)
+	 Extended total length:29
+	 Standand total length:11
+	
+	PF:帧格式
+	SA：源地址
+	
+
+CAN基本协议： ISO 11898
+CAN 网络层：  ISO 15765
+UDS 诊断服务： 
+  
+-------------------------------------BCAN机能代码bug&修改对应------------------------------------------------------------------------------------------------------------------------------- 
+2019/12/5
+1.网络管理判断返回TRUE
+2.Rx DLL处帧解析时，3ff改为7ff，将漏掉的一位补上 
+  
+2019/12/26  
+1. 发送的数据帧ID不对
+static void BCAN_DLL_convertTxFormat(CAN_IdFrame* pdrv_tx_frm, const BCANDLLTxSduFmt* pdll_tx_sdu)
+{
+	unsigned char i;
+
+	pdrv_tx_frm->Id = (unsigned short)(pdll_tx_sdu->can_id >> 18);
+	pdrv_tx_frm->EId = pdll_tx_sdu->can_id & (0x0001FFFF);/*修改方式,，将更多的位与进来*/
+
+	pdrv_tx_frm->Dlc = pdll_tx_sdu->len;
+
+	for (i = 0; i < 8; i++) {
+		pdrv_tx_frm->Data[i] = pdll_tx_sdu->data[i];
+	}
+
+}
+  
+2.结构体成员位置不一致 
+typedef struct {
+	unsigned long can_id;
+	unsigned char data_len;
+	unsigned short msg_lst_tm;
+	BCANAPLRxSduCategory cat;
+	BCANAPLRxSduType type;
+	unsigned char d0;
+	unsigned char d1;
+	unsigned char* pbuf_addr;
+}BCANAPLRxSduSrchTblFmt;
+  
+  
+3. 驱动里12FA1150x这个帧被屏蔽了，修改
+	RSCAN0GAFLMj(Can_Rx_Rule_Index).bits.gaflidm	= CAN_Msg_BufInfo[cindex].ID_Mask;			/*ID Mask*/   
+	mask ID屏蔽ID：CAN_driver.c   第326行
+ 
+
+resume和suspend的调用时机是什么时候?
+	脱出standby之后 和 进入standby之前
+
+
+ set_flg (FLG_ID_BCAN_APL, BCAN_APL_PTN_SOCREADY);置事件event，前面是
+	
+------------------------------------------------联调情况---------------------------------------------------------------------------------------------------------  
+/*SOC侧deliver log*/
+logcfg -c *:D
+logcfg -i DL_SD:I DL_REV:I
+logcat -s DL_SD DL_REV  -vtime
+
+
+/*状态部log*/
+logcfg -c *:D
+logcfg -i DL_DISP:I STSVEHINF:I
+logcat -s DL_DISP STSVEHINF -vtime
+
+/* Meter DLlog  */
+logcfg -c *:D
+logcfg -i DL_MET:I 
+logcat -s DL_MET  -vtime
+
+
+Meter单包信号：
+HU_OPERATION_REQ -----> 收不到（现已OK，原因是ID的PF被屏蔽了）
+ST_SW_L_INT      ----->  OK
+REPLY_HFL_AUDIO  ----->  OK
+REPLY_GUIDE_INFO ----->  OK
+
+
+DL 刘佳、倪健  meter侧
+DL 何欢、马寅  状态部侧
+
+/*GPS time log tag*/
+logcfg -c *:D
+logcfg -i DL_DISP:I STS_COM:I
+logcat -s DL_DISP STS_COM -vtime
+
+
+
+AC mute的操作手顺：
+1.连接iPhone手机-->carplay机能下-->长按Home键呼出Siri（依赖bcan通信状态为OK）
+2.连接Android手机-->AAP机能下-->点击VR呼出（依赖bcan通信状态为OK）
+
+
+
+
+
+ACTIVE_MET	1	5	10	1610FF50	Cyclic	1000
+
+Meter Active  BD7  bit 5
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------ 
+BCAN代码：
+1.fetch数据时，while改为if   √
+2.途绝6s判定
+3.FW层 发送周期300ms间隔判定
+4.Bitdata数据状态添加
+
+
+5.static void BCAN_APL_analyseTxSdu(void)  if (((apl_tx_sdu.data_len - 1) == apl_tx_sdu.data[0]) &&(apl_tx_sdu.data[0] > 4))
+  这里进行len判断
+  
+6.发送meter单包发生途绝 02 ：途绝
+
+
+BCAN代码review：
+1. 途绝6s判定            √
+2. FW层 发送周期300ms间隔判定  √
+3. FW帧过滤ID判断依据 
+  
+4. Bitdata数据状态添加  可以先将speed状态传上去   √
+
+5.extern void BCAN_IF_informSocReady(void){}  初期通信调用  ？？？
+
+6.途绝状态要传上去  √
+ 
+7.IF里B+ 、B off 等代码要添加   ?
+
+8.驱动里12FA1150x这个帧被屏蔽了，修改
+  RSCAN0GAFLMj(Can_Rx_Rule_Index).bits.gaflidm	= CAN_Msg_BufInfo[cindex].ID_Mask;			/*ID Mask*/   √
+  mask ID：CAN_driver.c   第319行
+
+9.Soc侧的ACK添加
+10.B off添加
+
+11.monitor帧里的ID_err_cnt永远不会增加？因为它是根据whitelist表复制的，
+
+
+BCAN代码残留：
+1.inform B off添加           √
+2.ACC ON,ACC OFF修改         √
+3.monitor帧里的ID_err_cnt永远不会增加？因为它是根据whitelist表复制的     √
+4.对soc侧ACK的重传机制添加                 √
+5.vehicle帧第一次发送判断，(BCAN_APL_RxSdu_RcvStatus[i] == BCAN_APL_RX_SDU_STS_NONE)  --->加个判断     √
+6.extern void BCAN_IF_informSocReady(void){}  初期通信调用
+7.BCAN的通信状态，在suspend时也应该清除下  --->清除外部变量                 √
+8.extern BCANIFSgnlSts BCAN_IF_getReverseStatus(void) 给Gyro用的接口        √
+9.meter信号改为有变化才发    √
+10.10h改为0Ah √
+11.Meter 多包ID不正确    √
+12.Tx combined 数据修改  √
+13.Security 代码修改    √
+
+
+for (i = 0; i < BCAN_FW_TX_FLT_TBL_ROW_SIZE; i++) {  BCAN security数组越界
+
+BCAN APL层里的发送状态标志主要是用来防止DAM cache里的数据在没被发送前就被其他数据覆盖，相当于一个保护锁
+
+
+-------------------------------------BCAN脚本----------------------------------------------------------------------------------------------------------- 
+脚本路径：
+https://svn.ci.iauto.com/svn/smartauto/Hancock/23_Knowhow/BCAN脚本 
+  
+  
+  
+弱点测试：
+1.利用脚本，发大量数据到soc侧
+
+  
+ ascii码：
+	48~57  --> 0~9 
+	65~90  --> A~Z
+	97~122 --> a~z
+  
+关于大端模式与小端模式：  
+1.阅读顺序与人类一致的为大端模式
+2.小端模式：低地址存放低字节，高地址存放高字节。
+	 例如：0x1234   0x34,0x12的方式存储
+  
+  大端模式：低地址存放高字节，高地址存放低字节。
+
+关于typedef的理解：
+	typedef 是用来定义一种类型的新别名的，它不同于宏，不是简单的字符串替换；
+	typedef 在语法上是一个存储类的关键字，同auto、extern、static等一样。
+  
+ctrl+G  跳到某行
+
+UART 数据格式：以9f 02 开头，以9f 03结尾，中间有10 Byte的bitdata，数据位后接两个字节的校验位
+  
+-------------------------------------Meter 测试log tag-----------------------------------------------------------------------------------------------------------   
+  
+
+/* deliver Meter DLlog  */
+logcfg -c *:D
+logcfg -i DL_MET:I 
+logcat -s DL_MET  -vtime
+
+
+/*Meter 内部log*/
+logcfg -c *:D
+logcfg -i DL_MET:I  meter:I
+logcat -s DL_MET meter  -vtime
+
+
+/*Gyro log*/
+logcfg -c NHGNSSDR
+logcat -s NHGNSSDR
+
+logcfg -c LOCD
+logcat -s LOCD
+
+
+ 
+DM_COOPERATE_INFO
+DM_COOPERATE_CONT1
+-》接收到ST_SW_INT时，且C_DEFAULT_CONTENTS_DMND = 1 
+ST_AUDIO_CURRENT
+->切曲，切source都行
+ST_SW_FB
+-》通过STSW调节音量
+HFL_STATE
+-》打电话
+GUIDE_DISP_DEMAND
+-》AAP导航  
+ 
+
+  
+  
+-------------------------------------系统相关知识理解-----------------------------------------------------------------------------------------------------------    
+
+RH850基于传统32-bit  RH850单内核  
+  
+SOC重启的情况
+	1.电源供电不足，MCU会重启SOC
+	2.SOC给MCU发送重启请求
+	3.MCU和SOC之间的呼吸包不能正常收发
+  
+  
+BCAN QA票 #639940  
+  
+GPIO：general purpose I/O Ports
+
+TP 数据的末尾是两个字节的checksum
+
+-------------------------------------can standby配置-----------------------------------------------------------------------------------------------------------    
+
+CAN_STBY 软件上没有配置，相当于默认低电平配置。
+根据CAN IC 的datasheet，该端子：
+normal模式下配置为 LOW
+standby模式下配饰为 HIGH
+后续QA明确不做复杂网络管理和CAN唤醒，所以一直是normal模式 
+  
+其实就是简易网络管理是非节电模式，没有standby唤醒需求
+此票在 仕樣_Hancock #709412 跟踪
+  
+  
+/*iTron 系统中sleep函数*/  
+ER
+slp_tsk(void)
+{
+    WINFO   winfo;　 
+    ER      ercd;
+
+    LOG_SLP_TSK_ENTER();
+    CHECK_DISPATCH();　
+
+    t_lock_cpu();
+    if (p_runtsk->wupque) {　 
+        p_runtsk->wupque = FALSE;　
+        ercd = E_OK;
+    }
+    else {
+        p_runtsk->tstat = (TS_WAITING | TS_WAIT_SLP);　 
+        make_wait(&winfo); 
+        LOG_TSKSTAT(p_runtsk);
+        dispatch();　
+        ercd = winfo.wercd;
+    }
+    t_unlock_cpu();
+
+  error_exit:
+    LOG_SLP_TSK_LEAVE(ercd);
+    return(ercd);
+}  
+  
+  
+-------------------------------------BCAN通信式样理解-----------------------------------------------------------------------------------------------------------  
+  
+P95:  
+应用CAN收发器，可以满足以下几点Pin分配应与NXP的TJA1040兼容。通过待机功能，当检测到主总线级别时，可以唤醒。
+(仅限采用节电模式的机组)接收端差动电压的阈值应为以下电平。最小:0.5V最大:0.9V对于CAN总线驱动器的Vcc电压水平应该是5V。
+具有支配超时的功能。
+(推荐)除了以上，在选择CAN收发器时要注意以下几点
+1.当单元电源断开时，母线泄漏电流不应造成蛇形电流中断或故障。
+2.考虑到暗电流对单元的影响，串联模式下的消耗电流较低  
+    
+  
+BCAN防火墙式样书：
+https://svn.ci.iauto.com/svn/smartauto/Hancock/02_Input/客先资料_HondaSpec/10_Honda-spec/5A42ZTGVAA000___TGVAF0952_E.PDF  
+  
+BCAN通信式样书:  
+https://svn.ci.iauto.com/svn/smartauto/Hancock/02_Input/客先资料_BCAN通信/[BCAN SPEC]3882Z-T0A-0000____A1006020_J___BODY COMMUNICATION.pdf  
+  
+  
+20M Yagi版本路径：  
+\\uranus.storm\iBigManny\Yagi\21M\MCU  
+  
+  
+BCAN Rx frame Security中未进行DLC(data length)过滤，巨大的安全隐患？  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
