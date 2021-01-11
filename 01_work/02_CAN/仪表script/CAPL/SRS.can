@@ -1,0 +1,84 @@
+includes
+{
+  
+}
+
+variables
+{
+  mstimer SRS_CYC_Timer;
+  message SRS_039 Msg_SRS_039;
+
+}
+
+on start
+{
+
+}
+on timer SRS_CYC_Timer
+{
+  if(getvalue(Env_UsrPWRON) == 1)
+  {  
+    Msg_SRS_039_Info_Updata();
+    Send_Msg_SRS_039();
+    SetTimer(SRS_CYC_Timer,300);
+  }
+  else
+  {
+    putValue(Env_SRS_AirbgAtv,0);
+  }  
+}
+/*********************Power information******************************/
+
+on envVar Env_UsrPWRON
+{
+  if(getValue(this) == 1)
+  {
+    write("SRS Power ON !!!!!!!");
+    Msg_SRS_039_Info_Updata();
+    Send_Msg_SRS_039();
+    SetTimer(SRS_CYC_Timer,300); 
+  }
+  else
+  {
+    write("SRS Power OFF !!!!!!!");
+  }  
+}
+
+on envVar Env_SRS_AirbgAtv
+{
+  Msg_SRS_039.SRS_AIRBAG_DEPLOY = getValue(Env_SRS_AirbgAtv);
+  if(getValue(this)== 1)
+  {
+    Msg_SRS_039.SRS_CDS_FRONT = 1;
+    Msg_SRS_039.SRS_CDS_REAR =0;
+    Msg_SRS_039.SRS_CDS_ROLLOVER=0;
+    Msg_SRS_039.SRS_CDS_SIDE=1;
+    Msg_SRS_039.SRS_MID_FRONT = 1;
+    Msg_SRS_039.SRS_MID_REAR = 0;
+    Msg_SRS_039.SRS_MID_SIDE = 1;    
+  }
+  else
+  {
+    Msg_SRS_039.SRS_CDS_FRONT = 0;
+    Msg_SRS_039.SRS_CDS_REAR =0;
+    Msg_SRS_039.SRS_CDS_ROLLOVER=0;
+    Msg_SRS_039.SRS_CDS_SIDE=0;
+    Msg_SRS_039.SRS_MID_FRONT = 0;
+    Msg_SRS_039.SRS_MID_REAR = 0;
+    Msg_SRS_039.SRS_MID_SIDE = 0;        
+  }
+ 
+  SetTimer(SRS_CYC_Timer,300);
+}
+
+void Msg_SRS_039_Info_Updata(void)
+{
+  Msg_SRS_039.SRS_AIRBAG_DEPLOY = getValue(Env_SRS_AirbgAtv);
+}
+void Send_Msg_SRS_039(void)
+{
+  if(getValue(Env_UsrPWRON)== 1)
+  {
+    output(Msg_SRS_039);     
+  }
+}

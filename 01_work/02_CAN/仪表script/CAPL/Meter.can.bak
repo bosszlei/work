@@ -1,0 +1,168 @@
+includes
+{
+  
+}
+
+variables
+{
+  mstimer Meter405_CYC_Timer;
+  mstimer Meter1A6_CYC_Timer;
+  
+  message METER_405 Msg_METER_405;
+  message METER_1A6 Msg_METER_1A6;  
+}
+on start
+{
+
+}
+on timer Meter405_CYC_Timer
+{
+  if(getvalue(Env_UsrPWRON) == 1)
+  {
+    Msg_METER_405_Info_Updata();
+    Send_Msg_METER_405();
+    SetTimer(Meter405_CYC_Timer,300);
+  }
+  else
+  {
+     putValue(Env_ABSIO,0);
+     putValue(Env_IntlgntBattSnsFldIO,0);
+     putValue(Env_EngOilPrsLwIO,0);
+     putValue(Env_AirbgICIO,0);
+     putValue(Env_PrkBrkSwAtv,0);
+     putValue(Env_PwrStrIO,0);
+     putValue(Env_FDSICIO,0);
+     putValue(Env_EngHotFuelEnrchmntIO,0);
+     putValue(Env_FlLvlPct,0);
+     putValue(Env_OtsAirTmp,0);
+  }  
+}
+on timer Meter1A6_CYC_Timer
+{
+  Msg_METER_1A6_Info_Updata();
+  Send_Msg_METER_1A6();
+  SetTimer(Meter1A6_CYC_Timer,1000);
+}
+/*********************Power information******************************/
+
+on envVar Env_UsrPWRON
+{
+  if(getValue(this) == 1)
+  {
+    write("Meter Power ON !!!!!!!");
+    Msg_METER_405_Info_Updata();
+    Send_Msg_METER_405();
+    SetTimer(Meter405_CYC_Timer,300); 
+    
+    Msg_METER_1A6_Info_Updata();
+    Send_Msg_METER_1A6();
+    SetTimer(Meter1A6_CYC_Timer,1000); 
+  }
+  else
+  {
+    write("Meter Power OFF !!!!!!!");
+  }  
+}
+/**********************Meter405 Env Information*************************/
+on envVar Env_ABSIO
+{
+  Msg_METER_405.METER_WARN_STATUS_ABS = getValue(Env_ABSIO);
+  Send_Msg_METER_405();
+  SetTimer(Meter405_CYC_Timer,300);
+}
+on envVar Env_IntlgntBattSnsFldIO
+{
+  Msg_METER_405.METER_WARN_STATUS_CHARGE = getValue(Env_IntlgntBattSnsFldIO);  
+  Send_Msg_METER_405();
+  SetTimer(Meter405_CYC_Timer,300);
+}
+on envVar Env_EngOilPrsLwIO
+{
+  Msg_METER_405.METER_WARN_STATUS_OIL_PRESS = getValue(Env_EngOilPrsLwIO);  
+  Send_Msg_METER_405();
+  SetTimer(Meter405_CYC_Timer,300);
+}
+on envVar Env_AirbgICIO
+{
+  putValue(Env_SRS_AirbgAtv,getValue(Env_AirbgICIO));/*通知 SRS模块 安全气囊检出*/
+  
+  Msg_METER_405.METER_WARN_STATUS_SRS = getValue(Env_AirbgICIO);  
+  Send_Msg_METER_405();
+  SetTimer(Meter405_CYC_Timer,300);
+}
+on envVar Env_PrkBrkSwAtv
+{
+  Msg_METER_405.METER_WARN_STATUS_BRK = getValue(Env_PrkBrkSwAtv);  
+  Send_Msg_METER_405();
+  SetTimer(Meter405_CYC_Timer,300);
+}
+on envVar Env_PwrStrIO
+{
+  Msg_METER_405.METER_WARN_STATUS_PWR_STR = getValue(Env_PwrStrIO); 
+  Send_Msg_METER_405();
+  SetTimer(Meter405_CYC_Timer,300);
+}
+on envVar Env_FDSICIO
+{
+  Msg_METER_405.METER_WARN_STATUS_SEAT_BLT = getValue(Env_FDSICIO);   
+  Send_Msg_METER_405();
+  SetTimer(Meter405_CYC_Timer,300);
+}
+on envVar Env_EngHotFuelEnrchmntIO
+{
+  Msg_METER_405.METER_WARN_STATUS_WATER_TEMP = getValue(Env_EngHotFuelEnrchmntIO);     
+  Send_Msg_METER_405();
+  SetTimer(Meter405_CYC_Timer,300);
+}
+/**********************Meter1A6 Env Information*************************/
+on envVar Env_FlLvlPct
+{
+  Msg_METER_1A6.METER_FUEL_LEVEL = getValue(Env_FlLvlPct);
+  Send_Msg_METER_1A6();
+  SetTimer(Meter1A6_CYC_Timer,1000);
+}
+on envVar Env_OtsAirTmp
+{
+  Msg_METER_1A6.METER_OTS_AIR_TMP = getValue(Env_OtsAirTmp)+40;
+  Send_Msg_METER_1A6();
+  SetTimer(Meter1A6_CYC_Timer,1000);
+}
+
+
+void Msg_METER_405_Info_Updata(void)
+{
+  Msg_METER_405.METER_WARN_STATUS_ABS = getValue(Env_ABSIO);
+  Msg_METER_405.METER_WARN_STATUS_CHARGE = getValue(Env_IntlgntBattSnsFldIO);
+ /* METER_WARN_STATUS_EBD
+  METER_WARN_STATUS_ECPS
+  METER_WARN_STATUS_ENG_CHECK
+  METER_WARN_STATUS_IMMOBI*/
+  Msg_METER_405.METER_WARN_STATUS_OIL_PRESS = getValue(Env_EngOilPrsLwIO);
+  Msg_METER_405.METER_WARN_STATUS_SRS = getValue(Env_AirbgICIO);
+  /*Msg_METER_405.METER_WARN_STATUS_TIRE_PRESS
+  Msg_METER_405.METER_WARN_STATUS_TPMS_SYSTEM
+  Msg_METER_405.METER_WARN_STATUS_VSA */      /*车辆稳定控制*/
+  Msg_METER_405.METER_WARN_STATUS_BRK = getValue(Env_PrkBrkSwAtv);
+  Msg_METER_405.METER_WARN_STATUS_PWR_STR = getValue(Env_PwrStrIO);  
+  Msg_METER_405.METER_WARN_STATUS_SEAT_BLT = getValue(Env_FDSICIO);    
+  Msg_METER_405.METER_WARN_STATUS_WATER_TEMP = getValue(Env_EngHotFuelEnrchmntIO);    
+}
+void Msg_METER_1A6_Info_Updata(void)
+{
+  Msg_METER_1A6.METER_FUEL_LEVEL = getValue(Env_FlLvlPct);
+  Msg_METER_1A6.METER_OTS_AIR_TMP = getValue(Env_OtsAirTmp)+40;
+}
+void Send_Msg_METER_405(void)
+{
+  if(getValue(Env_UsrPWRON)== 1)
+  {
+    output(Msg_METER_405);     
+  }    
+}
+void Send_Msg_METER_1A6(void)
+{
+  if(getValue(Env_UsrPWRON)== 1)
+  {
+    output(Msg_METER_1A6);     
+  }    
+}

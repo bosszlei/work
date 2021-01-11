@@ -1,0 +1,402 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: EMS TCU BCM MET SRS
+VAL_TABLE_ Door_State 1 "Open" 0 "Close" ;
+VAL_TABLE_ TrnsShftLvrPos 15 "Lever Position Unknown" 7 "ForWard Range D" 3 "Neutral Range" 2 "Reverse Range" 1 "Park Range" 0 "Between Ranges" ;
+VAL_TABLE_ Common_True_False 1 "True" 0 "False" ;
+VAL_TABLE_ Common_On_Off 1 "ON" 0 "OFF" ;
+VAL_TABLE_ Env_LftTrnLmpAtv 2 "On with telltale" 1 "On without telltale" 0 "off" ;
+VAL_TABLE_ Warning_Info 1 "Warning_ON" 0 "Warning_OFF" ;
+VAL_TABLE_ SRS_INFO 1 "SRS_ON" 0 "SRS_OFF" ;
+
+
+BO_ 3221225472 VECTOR__INDEPENDENT_SIG_MSG: 0 Vector__XXX
+ SG_ METER_WARN_STATUS_SRS_Copy_8 : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 928 EMS_ENGINE_VSPEED: 8 EMS
+ SG_ VALID_VEHICLE_SPEED : 8|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ VEHICLE_SPEED : 0|8@1+ (1,0) [0|240] "" Vector__XXX
+
+BO_ 422 METER_1A6: 8 Vector__XXX
+ SG_ METER_OTS_AIR_TMP : 8|7@1+ (1,-40) [-40|87] "degC" Vector__XXX
+ SG_ METER_FUEL_LEVEL : 0|7@1+ (1,0) [0|127] "%" Vector__XXX
+
+BO_ 1539 BCM_603: 8 BCM
+ SG_ BCM_TIRE_LR_TMP : 56|7@1+ (1,-20) [-20|107] "degC" Vector__XXX
+ SG_ BCM_TIRE_RR_TMP : 48|7@1+ (1,-20) [-20|107] "degC" Vector__XXX
+ SG_ BCM_TIRE_RF_TMP : 40|7@1+ (1,-20) [-20|107] "degC" Vector__XXX
+ SG_ BCM_TIRE_LF_TMP : 32|7@1+ (1,-20) [-20|107] "degC" Vector__XXX
+ SG_ BCM_TIRE_RR_PRS : 24|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ BCM_TIRE_RF_PRS : 16|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ BCM_TIRE_LR_PRS : 8|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ BCM_TIRE_LF_PRS : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 1538 TCU_602: 2 TCU
+ SG_ TCU_IG_Contrl : 7|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ TCU_LT_PrkLtAtv : 14|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ TCU_LT_RtTrnLmpAtv : 12|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ TCU_LT_LowBmAtv : 10|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ TCU_LT_LftTrnLmpAtv : 15|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ TCU_LT_HiBmAtv : 9|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ TCU_LT_HazSwAtv : 13|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ TCU_LT_FrFgLtAtv : 11|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ TCU_LT_RrFgLtAtv : 8|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ TCU_TRNKDOOR_OC : 4|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ TCU_RRDOOR_OC : 3|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ TCU_RLDOOR_OC : 2|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ TCU_PDOOR_OC : 1|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ TCU_DDOOR_OC : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 1537 BCM_601: 8 Vector__XXX
+ SG_ BCM_DDOOR_LOCK_ST : 32|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ BCM_PDDOOR_LOCK_ST : 33|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ BCM_RLDOOR_LOCK_ST : 34|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ BCM_RRDOOR_LOCK_ST : 35|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ BCM_TRNKDOOR_LOCK_ST : 36|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ BCM_IG_Contrl : 7|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BCM_LT_RrFgLtAtv : 24|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BCM_LT_PrkLtAtv : 30|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BCM_LT_HazSwAtv : 29|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BCM_LT_LowBmAtv : 26|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BCM_LT_HiBmAtv : 25|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BCM_LT_FrFgLtAtv : 27|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BCM_LT_RtTrnLmpAtv : 28|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BCM_LT_LftTrnLmpAtv : 31|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BCM_Accelerator_Pedal : 16|7@1+ (1,0) [0|100] "%" Vector__XXX
+ SG_ BCM_TRNS_SHFT_LVR_POS : 8|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ BCM_TRNKDOOR_ST : 4|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BCM_RRDOOR_ST : 3|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BCM_RLDOOR_ST : 2|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BCM_PDOOR_ST : 1|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BCM_DDOOR_ST : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 1029 METER_405: 8 MET
+ SG_ METER_WARN_STATUS_WATER_TEMP : 14|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ METER_WARN_STATUS_SEAT_BLT : 13|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ METER_WARN_STATUS_PWR_STR : 12|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ METER_WARN_STATUS_BRK : 11|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ METER_WARN_STATUS_VSA : 10|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ METER_WARN_STATUS_TPMS_SYSTEM : 9|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ METER_WARN_STATUS_TIRE_PRESS : 8|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ METER_WARN_STATUS_OIL_PRESS : 7|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ METER_WARN_STATUS_IMMOBI : 6|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ METER_WARN_STATUS_ENG_CHECK : 5|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ METER_WARN_STATUS_ECPS : 4|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ METER_WARN_STATUS_EBD : 3|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ METER_WARN_STATUS_CHARGE : 2|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ METER_WARN_STATUS_ABS : 1|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ METER_WARN_STATUS_SRS : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 1536 VINNO_600: 8 MET
+ SG_ C_UNREGISTERING : 62|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ C_FIEEPROMFAIL : 63|1@1- (1,0) [0|1] "" Vector__XXX
+ SG_ C_VINDATACOUNT : 0|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ C_VINBYTE7 : 48|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ C_VINBYTE6 : 40|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ C_VINBYTE5 : 32|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ C_VINBYTE4 : 24|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ C_VINBYTE3 : 16|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ C_VINBYTE2 : 8|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 57 SRS_039: 1 SRS
+ SG_ SRS_MID_REAR : 7|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SRS_MID_SIDE : 6|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SRS_MID_FRONT : 5|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SRS_CDS_ROLLOVER : 4|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SRS_CDS_REAR : 3|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SRS_CDS_SIDE : 2|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SRS_CDS_FRONT : 1|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SRS_AIRBAG_DEPLOY : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+
+
+EV_ Env_Valid_Vehicle_Speed: 0 [0|1] "" 0 1 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_VehicleSpeed: 0 [0|240] "" 0 2 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_IG: 0 [0|1] "" 0 3 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_RrCloseLockAtv: 0 [0|1] "" 0 4 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_LeftRearLockAtv: 0 [0|1] "" 0 5 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_RightRearLockAtv: 0 [0|1] "" 0 6 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_RightFrontLockAtv: 0 [0|1] "" 0 7 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_LeftFrontLockAtv: 0 [0|1] "" 0 8 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_SRS_AirbgAtv: 0 [0|1] "" 0 9 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_TireRR_Prs_Tmp_ST: 0 [0|1] "" 0 10 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_TireLR_Prs_Tmp_ST: 0 [0|1] "" 0 11 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_TireRF_Prs_Tmp_ST: 0 [0|1] "" 0 12 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_TireLF_Prs_Tmp_ST: 0 [0|1] "" 0 13 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_TrnsShftLvrPos: 0 [0|15] "" 1 14 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_Accelerator: 0 [0|100] "" 0 15 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_OtsAirTmp: 1 [-40|87] "" 24 16 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_FlLvlPct: 1 [0|100] "" 80 17 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_RrClosAjarSwAct: 0 [0|1] "" 0 18 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_RLDoorAjarSwAct: 0 [0|1] "" 0 19 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_RRDoorAjrSwAtv: 0 [0|1] "" 0 20 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_DDAjrSwAtv: 0 [0|1] "" 0 21 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_TireRRTmp: 1 [-20|107] "" 24 22 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_TireRFTmp: 1 [-20|107] "" 24 23 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_TireLRTmp: 1 [-20|107] "" 24 24 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_TireLFTmp: 1 [-20|107] "" 24 25 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_TireRRPrs: 1 [0|10.2] "" 2.2 26 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_TireRFPrs: 1 [0|10.2] "" 2.2 27 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_TireLRPrs: 1 [0|10.2] "" 2.2 28 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_LowBmAct: 0 [0|1] "" 0 29 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_PDAjrSwAtv: 0 [0|1] "" 0 30 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_TireLFPrs: 1 [0|10.2] "" 2.2 31 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_FDSICIO: 0 [0|1] "" 0 32 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_PwrStrIO: 0 [0|1] "" 0 33 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_PrkBrkSwAtv: 0 [0|1] "" 0 34 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_EngOilPrsLwIO: 0 [0|1] "" 0 35 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_RrFgLtIO: 0 [0|1] "" 0 36 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_HiBmIO: 0 [0|1] "" 0 37 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_FrFgLtIO: 0 [0|1] "" 0 38 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_AirbgICIO: 0 [0|1] "" 0 39 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_EngHotFuelEnrchmntIO: 0 [0|1] "" 0 40 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_IntlgntBattSnsFldIO: 0 [0|1] "" 0 41 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_ABSIO: 0 [0|1] "" 0 42 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_RtTrnLmpAtv: 0 [0|1] "" 0 43 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_LftTrnLmpAtv: 0 [0|2] "" 0 44 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_HazSwAtv: 0 [0|1] "" 0 45 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_PrkLtIO: 0 [0|1] "" 0 46 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrPWRON: 0 [0|1] "" 0 47 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrButtonRFPrsMinus: 0 [0|1] "" 0 48 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrButtonLFPrsPlus: 0 [0|1] "" 0 49 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrButtonLRTmpMinus: 0 [0|1] "" 0 50 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrButtonLRPrsPlus: 0 [0|1] "" 0 51 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrButtonLRPrsMinus: 0 [0|1] "" 0 52 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrButtonLFTmpPlus: 0 [0|1] "" 0 53 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrButtonLFTmpMinus: 0 [0|1] "" 0 54 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrButtonRRTmpPlus: 0 [0|1] "" 0 55 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrButtonRRTmpMinus: 0 [0|1] "" 0 56 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrButtonRRPrsPlus: 0 [0|1] "" 0 57 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrButtonRRPrsMinus: 0 [0|1] "" 0 58 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrButtonRFTmpPlus: 0 [0|1] "" 0 59 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrButtonRFTmpMinus: 0 [0|1] "" 0 60 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrButtonRFPrsPlus: 0 [0|1] "" 0 61 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrButtonLRTmpPlus: 0 [0|1] "" 0 62 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrButtonLFPrsMinus: 0 [0|1] "" 0 63 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ Env_UsrAcceleratorOn: 0 [0|1] "" 0 64 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+CM_ BO_ 3221225472 "This is a message for not used signals, created by Vector CANdb++ DBC OLE DB Provider.";
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 50000;
+BA_DEF_ BO_  "GenMsgSendType" ENUM  "Cyclic ","OnChange";
+BA_DEF_  "BusType" STRING ;
+BA_DEF_ BU_  "NodeLayerModules" STRING ;
+BA_DEF_ BU_  "ECU" STRING ;
+BA_DEF_ BU_  "CANoeJitterMax" INT 0 0;
+BA_DEF_ BU_  "CANoeJitterMin" INT 0 0;
+BA_DEF_ BU_  "CANoeDrift" INT 0 0;
+BA_DEF_ BU_  "CANoeStartDelay" INT 0 0;
+BA_DEF_DEF_  "GenMsgCycleTime" 0;
+BA_DEF_DEF_  "GenMsgSendType" "Cyclic ";
+BA_DEF_DEF_  "BusType" "";
+BA_DEF_DEF_  "NodeLayerModules" "";
+BA_DEF_DEF_  "ECU" "";
+BA_DEF_DEF_  "CANoeJitterMax" 0;
+BA_DEF_DEF_  "CANoeJitterMin" 0;
+BA_DEF_DEF_  "CANoeDrift" 0;
+BA_DEF_DEF_  "CANoeStartDelay" 0;
+BA_ "GenMsgCycleTime" BO_ 928 20;
+BA_ "GenMsgCycleTime" BO_ 422 1000;
+BA_ "GenMsgCycleTime" BO_ 1539 1000;
+BA_ "GenMsgSendType" BO_ 1538 1;
+BA_ "GenMsgCycleTime" BO_ 1537 300;
+BA_ "GenMsgCycleTime" BO_ 1029 300;
+BA_ "GenMsgCycleTime" BO_ 1536 300;
+BA_ "GenMsgCycleTime" BO_ 57 300;
+VAL_ 3221225472 METER_WARN_STATUS_SRS_Copy_8 1 "Warning_ON" 0 "Warning_OFF" ;
+VAL_ 928 VALID_VEHICLE_SPEED 1 "valid" 0 " invalid" ;
+VAL_ 928 VEHICLE_SPEED 240 "Description for the value '0xF0'" 239 "Description for the value '0xEF'" 238 "Description for the value '0xEE'" 237 "Description for the value '0xED'" 236 "Description for the value '0xEC'" 235 "Description for the value '0xEB'" 234 "Description for the value '0xEA'" 233 "Description for the value '0xE9'" 232 "Description for the value '0xE8'" 231 "Description for the value '0xE7'" 230 "Description for the value '0xE6'" 229 "Description for the value '0xE5'" 228 "Description for the value '0xE4'" 227 "Description for the value '0xE3'" 226 "Description for the value '0xE2'" 225 "Description for the value '0xE1'" 224 "Description for the value '0xE0'" 223 "Description for the value '0xDF'" 222 "Description for the value '0xDE'" 221 "Description for the value '0xDD'" 220 "Description for the value '0xDC'" 219 "Description for the value '0xDB'" 218 "Description for the value '0xDA'" 217 "Description for the value '0xD9'" 216 "Description for the value '0xD8'" 215 "Description for the value '0xD7'" 214 "Description for the value '0xD6'" 213 "Description for the value '0xD5'" 212 "Description for the value '0xD4'" 211 "Description for the value '0xD3'" 210 "Description for the value '0xD2'" 209 "Description for the value '0xD1'" 208 "Description for the value '0xD0'" 207 "Description for the value '0xCF'" 206 "Description for the value '0xCE'" 205 "Description for the value '0xCD'" 204 "Description for the value '0xCC'" 203 "Description for the value '0xCB'" 202 "Description for the value '0xCA'" 201 "Description for the value '0xC9'" 200 "Description for the value '0xC8'" 199 "Description for the value '0xC7'" 198 "Description for the value '0xC6'" 197 "Description for the value '0xC5'" 196 "Description for the value '0xC4'" 195 "Description for the value '0xC3'" 194 "Description for the value '0xC2'" 193 "Description for the value '0xC1'" 192 "Description for the value '0xC0'" 191 "Description for the value '0xBF'" 190 "Description for the value '0xBE'" 189 "Description for the value '0xBD'" 188 "Description for the value '0xBC'" 187 "Description for the value '0xBB'" 186 "Description for the value '0xBA'" 185 "Description for the value '0xB9'" 184 "Description for the value '0xB8'" 183 "Description for the value '0xB7'" 182 "Description for the value '0xB6'" 181 "Description for the value '0xB5'" 180 "Description for the value '0xB4'" 179 "Description for the value '0xB3'" 178 "Description for the value '0xB2'" 177 "Description for the value '0xB1'" 176 "Description for the value '0xB0'" 175 "Description for the value '0xAF'" 174 "Description for the value '0xAE'" 173 "Description for the value '0xAD'" 172 "Description for the value '0xAC'" 171 "Description for the value '0xAB'" 170 "Description for the value '0xAA'" 169 "Description for the value '0xA9'" 168 "Description for the value '0xA8'" 167 "Description for the value '0xA7'" 166 "Description for the value '0xA6'" 165 "Description for the value '0xA5'" 164 "Description for the value '0xA4'" 163 "Description for the value '0xA3'" 162 "Description for the value '0xA2'" 161 "Description for the value '0xA1'" 160 "Description for the value '0xA0'" 159 "Description for the value '0x9F'" 158 "Description for the value '0x9E'" 157 "Description for the value '0x9D'" 156 "Description for the value '0x9C'" 155 "Description for the value '0x9B'" 154 "Description for the value '0x9A'" 153 "Description for the value '0x99'" 152 "Description for the value '0x98'" 151 "Description for the value '0x97'" 150 "Description for the value '0x96'" 149 "Description for the value '0x95'" 148 "Description for the value '0x94'" 147 "Description for the value '0x93'" 146 "Description for the value '0x92'" 145 "Description for the value '0x91'" 144 "Description for the value '0x90'" 143 "Description for the value '0x8F'" 142 "Description for the value '0x8E'" 141 "Description for the value '0x8D'" 140 "Description for the value '0x8C'" 139 "Description for the value '0x8B'" 138 "Description for the value '0x8A'" 137 "Description for the value '0x89'" 136 "Description for the value '0x88'" 135 "Description for the value '0x87'" 134 "Description for the value '0x86'" 133 "Description for the value '0x85'" 132 "Description for the value '0x84'" 131 "Description for the value '0x83'" 130 "Description for the value '0x82'" 129 "Description for the value '0x81'" 128 "Description for the value '0x80'" 127 "Description for the value '0x7F'" 126 "Description for the value '0x7E'" 125 "Description for the value '0x7D'" 124 "Description for the value '0x7C'" 123 "Description for the value '0x7B'" 122 "Description for the value '0x7A'" 121 "Description for the value '0x79'" 120 "Description for the value '0x78'" 119 "Description for the value '0x77'" 118 "Description for the value '0x76'" 117 "Description for the value '0x75'" 116 "Description for the value '0x74'" 115 "Description for the value '0x73'" 114 "Description for the value '0x72'" 113 "Description for the value '0x71'" 112 "Description for the value '0x70'" 111 "Description for the value '0x6F'" 110 "Description for the value '0x6E'" 109 "Description for the value '0x6D'" 108 "Description for the value '0x6C'" 107 "Description for the value '0x6B'" 106 "Description for the value '0x6A'" 105 "Description for the value '0x69'" 104 "Description for the value '0x68'" 103 "Description for the value '0x67'" 102 "Description for the value '0x66'" 101 "Description for the value '0x65'" 100 "Description for the value '0x64'" 99 "Description for the value '0x63'" 98 "Description for the value '0x62'" 97 "Description for the value '0x61'" 96 "Description for the value '0x60'" 95 "Description for the value '0x5F'" 94 "Description for the value '0x5E'" 93 "Description for the value '0x5D'" 92 "Description for the value '0x5C'" 91 "Description for the value '0x5B'" 90 "Description for the value '0x5A'" 89 "Description for the value '0x59'" 88 "Description for the value '0x58'" 87 "Description for the value '0x57'" 86 "Description for the value '0x56'" 85 "Description for the value '0x55'" 84 "Description for the value '0x54'" 83 "Description for the value '0x53'" 82 "Description for the value '0x52'" 81 "Description for the value '0x51'" 80 "Description for the value '0x50'" 79 "Description for the value '0x4F'" 78 "Description for the value '0x4E'" 77 "Description for the value '0x4D'" 76 "Description for the value '0x4C'" 75 "Description for the value '0x4B'" 74 "Description for the value '0x4A'" 73 "Description for the value '0x49'" 72 "Description for the value '0x48'" 71 "Description for the value '0x47'" 70 "Description for the value '0x46'" 69 "Description for the value '0x45'" 68 "Description for the value '0x44'" 67 "Description for the value '0x43'" 66 "Description for the value '0x42'" 65 "Description for the value '0x41'" 64 "Description for the value '0x40'" 63 "Description for the value '0x3F'" 62 "Description for the value '0x3E'" 61 "Description for the value '0x3D'" 60 "Description for the value '0x3C'" 59 "Description for the value '0x3B'" 58 "Description for the value '0x3A'" 57 "Description for the value '0x39'" 56 "Description for the value '0x38'" 55 "Description for the value '0x37'" 54 "Description for the value '0x36'" 53 "Description for the value '0x35'" 52 "Description for the value '0x34'" 51 "Description for the value '0x33'" 50 "Description for the value '0x32'" 49 "Description for the value '0x31'" 48 "Description for the value '0x30'" 47 "Description for the value '0x2F'" 46 "Description for the value '0x2E'" 45 "Description for the value '0x2D'" 44 "Description for the value '0x2C'" 43 "Description for the value '0x2B'" 42 "Description for the value '0x2A'" 41 "Description for the value '0x29'" 40 "Description for the value '0x28'" 39 "Description for the value '0x27'" 38 "Description for the value '0x26'" 37 "Description for the value '0x25'" 36 "Description for the value '0x24'" 35 "Description for the value '0x23'" 34 "Description for the value '0x22'" 33 "Description for the value '0x21'" 32 "Description for the value '0x20'" 31 "Description for the value '0x1F'" 30 "Description for the value '0x1E'" 29 "Description for the value '0x1D'" 28 "Description for the value '0x1C'" 27 "Description for the value '0x1B'" 26 "Description for the value '0x1A'" 25 "Description for the value '0x19'" 24 "Description for the value '0x18'" 23 "Description for the value '0x17'" 22 "Description for the value '0x16'" 21 "Description for the value '0x15'" 20 "Description for the value '0x14'" 19 "Description for the value '0x13'" 18 "Description for the value '0x12'" 17 "Description for the value '0x11'" 16 "Description for the value '0x10'" 15 "Description for the value '0xF'" 14 "Description for the value '0xE'" 13 "Description for the value '0xD'" 12 "Description for the value '0xC'" 11 "Description for the value '0xB'" 10 "Description for the value '0xA'" 9 "Description for the value '0x9'" 8 "Description for the value '0x8'" 7 "Description for the value '0x7'" 6 "Description for the value '0x6'" 5 "Description for the value '0x5'" 4 "Description for the value '0x4'" 3 "Description for the value '0x3'" 2 "Description for the value '0x2'" 1 "Description for the value '0x1'" 0 "Description for the value '0x0'" ;
+VAL_ 1538 TCU_IG_Contrl 1 "ON" 0 "OFF" ;
+VAL_ 1538 TCU_LT_PrkLtAtv 1 "ON" 0 "OFF" ;
+VAL_ 1538 TCU_LT_RtTrnLmpAtv 1 "ON" 0 "OFF" ;
+VAL_ 1538 TCU_LT_LowBmAtv 1 "ON" 0 "OFF" ;
+VAL_ 1538 TCU_LT_LftTrnLmpAtv 1 "ON" 0 "OFF" ;
+VAL_ 1538 TCU_LT_HiBmAtv 1 "ON" 0 "OFF" ;
+VAL_ 1538 TCU_LT_HazSwAtv 1 "ON" 0 "OFF" ;
+VAL_ 1538 TCU_LT_FrFgLtAtv 1 "ON" 0 "OFF" ;
+VAL_ 1538 TCU_LT_RrFgLtAtv 1 "ON" 0 "OFF" ;
+VAL_ 1538 TCU_TRNKDOOR_OC 1 "Unlock" 0 "Lock" ;
+VAL_ 1538 TCU_RRDOOR_OC 1 "Unlock" 0 "Lock" ;
+VAL_ 1538 TCU_RLDOOR_OC 1 "Unlock" 0 "Lock" ;
+VAL_ 1538 TCU_PDOOR_OC 1 "Unlock" 0 "Lock" ;
+VAL_ 1538 TCU_DDOOR_OC 1 "Unlock" 0 "Lock" ;
+VAL_ 1537 BCM_DDOOR_LOCK_ST 1 "Ulock" 0 "Lock" ;
+VAL_ 1537 BCM_PDDOOR_LOCK_ST 1 "Unlock" 0 "Lock" ;
+VAL_ 1537 BCM_RLDOOR_LOCK_ST 1 "Ulock" 0 "Lock" ;
+VAL_ 1537 BCM_RRDOOR_LOCK_ST 1 "Unlock" 0 "Lock" ;
+VAL_ 1537 BCM_TRNKDOOR_LOCK_ST 1 "Unlock" 0 "Lock" ;
+VAL_ 1537 BCM_IG_Contrl 1 "ON" 0 "OFF" ;
+VAL_ 1537 BCM_LT_RrFgLtAtv 1 "ON" 0 "OFF" ;
+VAL_ 1537 BCM_LT_PrkLtAtv 1 "ON" 0 "OFF" ;
+VAL_ 1537 BCM_LT_HazSwAtv 1 "ON" 0 "OFF" ;
+VAL_ 1537 BCM_LT_LowBmAtv 1 "ON" 0 "OFF" ;
+VAL_ 1537 BCM_LT_HiBmAtv 1 "ON" 0 "OFF" ;
+VAL_ 1537 BCM_LT_FrFgLtAtv 1 "ON" 0 "OFF" ;
+VAL_ 1537 BCM_LT_RtTrnLmpAtv 1 "ON" 0 "OFF" ;
+VAL_ 1537 BCM_LT_LftTrnLmpAtv 1 "ON" 0 "OFF" ;
+VAL_ 1537 BCM_TRNS_SHFT_LVR_POS 15 "Lever Position Unknown" 7 "ForWard Range D" 3 "Neutral Range" 2 "Reverse Range" 1 "Park Range" 0 "Between Ranges" ;
+VAL_ 1537 BCM_TRNKDOOR_ST 1 "Open" 0 "Close" ;
+VAL_ 1537 BCM_RRDOOR_ST 1 "Open" 0 "Close" ;
+VAL_ 1537 BCM_RLDOOR_ST 1 "Open" 0 "Close" ;
+VAL_ 1537 BCM_PDOOR_ST 1 "Open" 0 "Close" ;
+VAL_ 1537 BCM_DDOOR_ST 1 "Open" 0 "Close" ;
+VAL_ 1029 METER_WARN_STATUS_WATER_TEMP 1 "Warning_ON" 0 "Warning_OFF" ;
+VAL_ 1029 METER_WARN_STATUS_SEAT_BLT 1 "Warning_ON" 0 "Warning_OFF" ;
+VAL_ 1029 METER_WARN_STATUS_PWR_STR 1 "Warning_ON" 0 "Warning_OFF" ;
+VAL_ 1029 METER_WARN_STATUS_BRK 1 "Warning_ON" 0 "Warning_OFF" ;
+VAL_ 1029 METER_WARN_STATUS_VSA 1 "Warning_ON" 0 "Warning_OFF" ;
+VAL_ 1029 METER_WARN_STATUS_TPMS_SYSTEM 1 "Warning_ON" 0 "Warning_OFF" ;
+VAL_ 1029 METER_WARN_STATUS_TIRE_PRESS 1 "Warning_ON" 0 "Warning_OFF" ;
+VAL_ 1029 METER_WARN_STATUS_OIL_PRESS 1 "Warning_ON" 0 "Warning_OFF" ;
+VAL_ 1029 METER_WARN_STATUS_IMMOBI 1 "Warning_ON" 0 "Warning_OFF" ;
+VAL_ 1029 METER_WARN_STATUS_ENG_CHECK 1 "Warning_ON" 0 "Warning_OFF" ;
+VAL_ 1029 METER_WARN_STATUS_ECPS 1 "Warning_ON" 0 "Warning_OFF" ;
+VAL_ 1029 METER_WARN_STATUS_EBD 1 "Warning_ON" 0 "Warning_OFF" ;
+VAL_ 1029 METER_WARN_STATUS_CHARGE 1 "Warning_ON" 0 "Warning_OFF" ;
+VAL_ 1029 METER_WARN_STATUS_ABS 1 "Warning_ON" 0 "Warning_OFF" ;
+VAL_ 1029 METER_WARN_STATUS_SRS 1 "Warning_ON" 0 "Warning_OFF" ;
+VAL_ 57 SRS_MID_REAR 1 "SRS_ON" 0 "SRS_OFF" ;
+VAL_ 57 SRS_MID_SIDE 1 "SRS_ON" 0 "SRS_OFF" ;
+VAL_ 57 SRS_MID_FRONT 1 "SRS_ON" 0 "SRS_OFF" ;
+VAL_ 57 SRS_CDS_ROLLOVER 1 "SRS_ON" 0 "SRS_OFF" ;
+VAL_ 57 SRS_CDS_REAR 1 "SRS_ON" 0 "SRS_OFF" ;
+VAL_ 57 SRS_CDS_SIDE 1 "SRS_ON" 0 "SRS_OFF" ;
+VAL_ 57 SRS_CDS_FRONT 1 "SRS_ON" 0 "SRS_OFF" ;
+VAL_ 57 SRS_AIRBAG_DEPLOY 1 "SRS_ON" 0 "SRS_OFF" ;
+VAL_ Env_RrCloseLockAtv 1 "True" 0 "False" ;
+VAL_ Env_LeftRearLockAtv 1 "True" 0 "False" ;
+VAL_ Env_RightRearLockAtv 1 "True" 0 "False" ;
+VAL_ Env_RightFrontLockAtv 1 "True" 0 "False" ;
+VAL_ Env_LeftFrontLockAtv 1 "True" 0 "False" ;
+VAL_ Env_SRS_AirbgAtv 1 "True" 0 "False" ;
+VAL_ Env_TireRR_Prs_Tmp_ST 1 "True" 0 "False" ;
+VAL_ Env_TireLR_Prs_Tmp_ST 1 "True" 0 "False" ;
+VAL_ Env_TireRF_Prs_Tmp_ST 1 "True" 0 "False" ;
+VAL_ Env_TireLF_Prs_Tmp_ST 1 "True" 0 "False" ;
+VAL_ Env_TrnsShftLvrPos 15 "Lever Position Unknown" 7 "ForWard Range D" 3 "Neutral Range" 2 "Reverse Range" 1 "Park Range" 0 "Between Ranges" ;
+VAL_ Env_FlLvlPct 2 "On with telltale" 1 "On without telltale" 0 "off" ;
+VAL_ Env_RrClosAjarSwAct 1 "True" 0 "False" ;
+VAL_ Env_RLDoorAjarSwAct 1 "True" 0 "False" ;
+VAL_ Env_RRDoorAjrSwAtv 1 "True" 0 "False" ;
+VAL_ Env_DDAjrSwAtv 1 "True" 0 "False" ;
+VAL_ Env_TireRRTmp 1 "True" 0 "False" ;
+VAL_ Env_TireRFTmp 1 "True" 0 "False" ;
+VAL_ Env_TireLRTmp 1 "True" 0 "False" ;
+VAL_ Env_TireLFTmp 1 "True" 0 "False" ;
+VAL_ Env_TireRRPrs 1 "True" 0 "False" ;
+VAL_ Env_TireRFPrs 1 "True" 0 "False" ;
+VAL_ Env_TireLRPrs 1 "True" 0 "False" ;
+VAL_ Env_LowBmAct 1 "True" 0 "False" ;
+VAL_ Env_PDAjrSwAtv 1 "True" 0 "False" ;
+VAL_ Env_TireLFPrs 1 "True" 0 "False" ;
+VAL_ Env_FDSICIO 1 "True" 0 "False" ;
+VAL_ Env_PwrStrIO 1 "True" 0 "False" ;
+VAL_ Env_PrkBrkSwAtv 1 "True" 0 "False" ;
+VAL_ Env_EngOilPrsLwIO 1 "True" 0 "False" ;
+VAL_ Env_RrFgLtIO 1 "True" 0 "False" ;
+VAL_ Env_HiBmIO 1 "True" 0 "False" ;
+VAL_ Env_FrFgLtIO 1 "True" 0 "False" ;
+VAL_ Env_AirbgICIO 1 "True" 0 "False" ;
+VAL_ Env_EngHotFuelEnrchmntIO 1 "True" 0 "False" ;
+VAL_ Env_IntlgntBattSnsFldIO 1 "True" 0 "False" ;
+VAL_ Env_ABSIO 1 "True" 0 "False" ;
+VAL_ Env_RtTrnLmpAtv 2 "On with telltale" 1 "On without telltale" 0 "off" ;
+VAL_ Env_LftTrnLmpAtv 2 "On with telltale" 1 "On without telltale" 0 "off" ;
+VAL_ Env_HazSwAtv 1 "True" 0 "False" ;
+VAL_ Env_PrkLtIO 1 "True" 0 "False" ;
+

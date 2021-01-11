@@ -1,0 +1,888 @@
+includes
+{
+  
+}
+
+variables
+{
+  mstimer BCM_601_CYC_Timer;
+  mstimer BCM_603_CYC_Timer;
+  message BCM_601 Msg_BCM_601;
+  message BCM_603 Msg_BCM_603;
+
+}
+
+on start
+{
+    Msg_BCM_601_Info_Updata();
+    Send_Msg_BCM_601();
+    SetTimer(BCM_601_CYC_Timer,300);
+}
+on timer BCM_601_CYC_Timer
+{
+  if(getvalue(Env_UsrPWRON)==0)
+  {
+    putValue(Env_TrnsShftLvrPos,0);
+    putValue(Env_Accelerator,0);
+    putValue(Env_HiBmIO,0);
+    putValue(Env_HazSwAtv,0);
+    putValue(Env_LowBmAct,0);
+    putValue(Env_PrkLtIO,0);
+    putValue(Env_RrFgLtIO,0);
+    putValue(Env_FrFgLtIO,0);
+    putValue(Env_FrFgLtIO,0);
+    putValue(Env_LftTrnLmpAtv,0);
+  }  
+  Msg_BCM_601_Info_Updata();
+  Send_Msg_BCM_601();
+  SetTimer(BCM_601_CYC_Timer,300);
+}
+on timer BCM_603_CYC_Timer
+{
+  if(getvalue(Env_UsrPWRON)==0)
+  {
+//        putValue(Env_TireLFPrs,0);
+//        putValue(Env_TireLFTmp,0);
+//        putValue(Env_UsrButtonLFPrsMinus,0);
+//        putValue(Env_UsrButtonLFPrsPlus,0);
+//        putValue(Env_UsrButtonLFTmpMinus,0);
+//        putValue(Env_UsrButtonLFTmpPlus,0);
+//        putValue(Env_TireLRPrs,0);
+//        putValue(Env_TireLRTmp,0);
+//        putValue(Env_UsrButtonLRPrsMinus,0);
+//        putValue(Env_UsrButtonLRPrsPlus,0);
+//        putValue(Env_UsrButtonLRTmpMinus,0);
+//        putValue(Env_UsrButtonLRTmpPlus,0);
+//        putValue(Env_TireRFPrs,0);
+//        putValue(Env_TireRFTmp,0);
+//        putValue(Env_UsrButtonRFPrsMinus,0);
+//        putValue(Env_UsrButtonRFPrsPlus,0);
+//        putValue(Env_UsrButtonRFTmpMinus,0);
+//        putValue(Env_UsrButtonRFTmpPlus,0);
+//        putValue(Env_TireRRPrs,0);
+//        putValue(Env_TireRRTmp,0);
+//        putValue(Env_UsrButtonRRPrsMinus,0);
+//        putValue(Env_UsrButtonRRPrsPlus,0);
+//        putValue(Env_UsrButtonRRTmpMinus,0);
+//        putValue(Env_UsrButtonRRTmpPlus,0);
+//        putValue(Env_TireLF_Prs_Tmp_ST,0);
+//        putValue(Env_TireRF_Prs_Tmp_ST,0);
+//        putValue(Env_TireLR_Prs_Tmp_ST,0);
+//        putValue(Env_TireRR_Prs_Tmp_ST,0);
+
+      }
+      Msg_BCM_603_Info_Updata();
+      Send_Msg_BCM_603();
+      SetTimer(BCM_603_CYC_Timer,1000); 
+}
+
+/*********************Power information******************************/
+
+on envVar Env_UsrPWRON
+{
+  if(getValue(this) == 1)
+  {
+    write("BCM Power ON !!!!!!!");
+    Msg_BCM_601_Info_Updata();
+    Send_Msg_BCM_601();
+    SetTimer(BCM_601_CYC_Timer,300);
+    Msg_BCM_603_Info_Updata();
+    Send_Msg_BCM_603();
+    SetTimer(BCM_603_CYC_Timer,1000);
+  }
+  else
+  {
+    Msg_BCM_601_Info_Updata();
+    Send_Msg_BCM_601();
+    SetTimer(BCM_601_CYC_Timer,300);
+    write("BCM Power OFF !!!!!!!");
+  }  
+}
+
+on envVar Env_DDAjrSwAtv
+{
+  Msg_BCM_601.BCM_DDOOR_ST = getValue(Env_DDAjrSwAtv); 
+  Send_Msg_BCM_601();
+  SetTimer(BCM_601_CYC_Timer,300);
+  if (getValue(this) == 1)
+  { 
+    if(getValue(Env_LeftFrontLockAtv) == 0)
+    {
+      putValue(Env_LeftFrontLockAtv, 1);
+    } 
+  }
+}
+
+on envVar Env_PDAjrSwAtv
+{
+  Msg_BCM_601.BCM_PDOOR_ST = getValue(Env_PDAjrSwAtv); 
+  Send_Msg_BCM_601();
+  SetTimer(BCM_601_CYC_Timer,300);
+  if (getValue(this) == 1)
+  { 
+    if(getValue(Env_RightFrontLockAtv) == 0)
+    {
+      putValue(Env_RightFrontLockAtv, 1);
+    } 
+  }
+}
+on envVar Env_RLDoorAjarSwAct
+{
+  Msg_BCM_601.BCM_RLDOOR_ST = getValue(Env_RLDoorAjarSwAct); 
+  Send_Msg_BCM_601();
+  SetTimer(BCM_601_CYC_Timer,300);
+  if (getValue(this) == 1)
+  { 
+    if(getValue(Env_LeftRearLockAtv) == 0)
+    {
+      putValue(Env_LeftRearLockAtv, 1);
+    } 
+  }
+}
+on envVar Env_RRDoorAjrSwAtv
+{
+  Msg_BCM_601.BCM_RRDOOR_ST = getValue(Env_RRDoorAjrSwAtv); 
+  Send_Msg_BCM_601();
+  SetTimer(BCM_601_CYC_Timer,300);
+  if (getValue(this) == 1)
+  { 
+    if(getValue(Env_RightRearLockAtv) == 0)
+    {
+      putValue(Env_RightRearLockAtv, 1);
+    } 
+  }
+}
+on envVar Env_RrClosAjarSwAct
+{
+  Msg_BCM_601.BCM_TRNKDOOR_ST = getValue(Env_RrClosAjarSwAct); 
+  Send_Msg_BCM_601();
+  SetTimer(BCM_601_CYC_Timer,300);
+  if (getValue(this) == 1)
+  { 
+    if(getValue(Env_RrCloseLockAtv) == 0)
+    {
+      putValue(Env_RrCloseLockAtv, 1);
+    } 
+  }
+}
+
+on envVar Env_LeftFrontLockAtv
+{
+  if(getvalue(Env_DDAjrSwAtv)==0)
+  {
+       Msg_BCM_601.BCM_DDOOR_LOCK_ST = getValue(Env_LeftFrontLockAtv); 
+       Send_Msg_BCM_601();
+       SetTimer(BCM_601_CYC_Timer,300);
+  }
+  else
+  {
+//       putValue(this,1);
+//       Msg_BCM_601.BCM_DDOOR_LOCK_ST = getValue(this); 
+//       Send_Msg_BCM_601();
+//       SetTimer(BCM_601_CYC_Timer,300);
+  }  
+}
+
+on envVar Env_LeftRearLockAtv
+{
+  if(getvalue(Env_RLDoorAjarSwAct)==0)
+  {
+    Msg_BCM_601.BCM_RLDOOR_LOCK_ST = getValue(Env_LeftRearLockAtv); 
+    Send_Msg_BCM_601();
+    SetTimer(BCM_601_CYC_Timer,300);
+  } 
+  else
+  {
+//    putValue(this,1);
+//    Msg_BCM_601.BCM_RLDOOR_LOCK_ST = getValue(Env_LeftRearLockAtv); 
+//    Send_Msg_BCM_601();
+//    SetTimer(BCM_601_CYC_Timer,300);
+  }
+}
+
+on envVar Env_RightFrontLockAtv
+{
+  if(getvalue(Env_PDAjrSwAtv)==0)
+  {
+      Msg_BCM_601.BCM_PDDOOR_LOCK_ST = getValue(Env_RightFrontLockAtv); 
+      Send_Msg_BCM_601();
+      SetTimer(BCM_601_CYC_Timer,300);
+  } 
+  else
+  { 
+//    putValue(this,1);
+//    Msg_BCM_601.BCM_PDDOOR_LOCK_ST = getValue(Env_RightFrontLockAtv); 
+//    Send_Msg_BCM_601();
+//    SetTimer(BCM_601_CYC_Timer,300);
+  }
+}
+
+on envVar Env_RightRearLockAtv
+{
+  if(getvalue(Env_RRDoorAjrSwAtv)==0)
+  {
+    Msg_BCM_601.BCM_RRDOOR_LOCK_ST = getValue(Env_RightRearLockAtv); 
+    Send_Msg_BCM_601();
+    SetTimer(BCM_601_CYC_Timer,300);
+
+  }  
+  else
+  {  
+//    putValue(this,1);
+//    Msg_BCM_601.BCM_RRDOOR_LOCK_ST = getValue(Env_RightRearLockAtv); 
+//    Send_Msg_BCM_601();
+//    SetTimer(BCM_601_CYC_Timer,300);
+  }
+}
+
+on envVar Env_RrCloseLockAtv
+{
+  if(getvalue(Env_RrClosAjarSwAct)==0)
+  {
+    Msg_BCM_601.BCM_TRNKDOOR_LOCK_ST = getValue(Env_RrCloseLockAtv); 
+    Send_Msg_BCM_601();
+    SetTimer(BCM_601_CYC_Timer,300);
+
+  }
+  else
+  { 
+//    putValue(this,1);
+//    Msg_BCM_601.BCM_TRNKDOOR_LOCK_ST = getValue(Env_RrCloseLockAtv); 
+//    Send_Msg_BCM_601();
+//    SetTimer(BCM_601_CYC_Timer,300);
+  }
+}
+on envVar Env_TrnsShftLvrPos
+{
+  if(getvalue(Env_UsrPWRON) == 1)
+  {  
+    Msg_BCM_601.BCM_TRNS_SHFT_LVR_POS = getValue(Env_TrnsShftLvrPos); 
+    Send_Msg_BCM_601();
+    SetTimer(BCM_601_CYC_Timer,300);  
+  }
+}
+on envVar Env_Accelerator
+{
+  if(getvalue(Env_UsrPWRON) == 1)
+  {   
+    Msg_BCM_601.BCM_Accelerator_Pedal = getValue(Env_Accelerator); 
+    Send_Msg_BCM_601();
+    SetTimer(BCM_601_CYC_Timer,300); 
+  }
+}
+on envVar Env_HiBmIO
+{
+  if(getvalue(Env_UsrPWRON) == 1)
+  {   
+    Msg_BCM_601.BCM_LT_HiBmAtv  = getValue(Env_HiBmIO);
+    Send_Msg_BCM_601();
+    SetTimer(BCM_601_CYC_Timer,300);    
+  }
+}
+
+on envVar Env_HazSwAtv
+{
+  if(getvalue(Env_UsrPWRON) == 1)
+  {  
+    Msg_BCM_601.BCM_LT_HazSwAtv = getValue(Env_HazSwAtv);
+    Send_Msg_BCM_601();
+    SetTimer(BCM_601_CYC_Timer,300);    
+  }
+}
+
+on envVar Env_LowBmAct
+{
+  if(getvalue(Env_UsrPWRON) == 1)
+  {  
+    Msg_BCM_601.BCM_LT_LowBmAtv = getValue(Env_LowBmAct);
+    Send_Msg_BCM_601();
+    SetTimer(BCM_601_CYC_Timer,300);    
+  }
+}
+
+on envVar Env_PrkLtIO
+{
+  if(getvalue(Env_UsrPWRON) == 1)
+  {  
+    Msg_BCM_601.BCM_LT_PrkLtAtv = getValue(Env_PrkLtIO);
+    Send_Msg_BCM_601();
+    SetTimer(BCM_601_CYC_Timer,300);  
+  }
+}
+
+on envVar Env_RrFgLtIO
+{
+  if(getvalue(Env_UsrPWRON) == 1)
+  {  
+    Msg_BCM_601.BCM_LT_RrFgLtAtv = getValue(Env_RrFgLtIO);
+    Send_Msg_BCM_601();
+    SetTimer(BCM_601_CYC_Timer,300);  
+  }
+}
+
+on envVar Env_FrFgLtIO
+{
+  if(getvalue(Env_UsrPWRON) == 1)
+  {  
+    Msg_BCM_601.BCM_LT_FrFgLtAtv  = getValue(Env_FrFgLtIO);
+    Send_Msg_BCM_601();
+    SetTimer(BCM_601_CYC_Timer,300);    
+  }
+}
+
+on envVar Env_LftTrnLmpAtv
+{
+  if(getvalue(Env_UsrPWRON) == 1)
+  {  
+    Msg_BCM_601.BCM_LT_LftTrnLmpAtv = getValue(Env_LftTrnLmpAtv);
+    Send_Msg_BCM_601();
+    SetTimer(BCM_601_CYC_Timer,300);    
+  }  
+ 
+}
+
+on envVar Env_RtTrnLmpAtv
+{
+  if(getvalue(Env_UsrPWRON) == 1)
+  { 
+    Msg_BCM_601.BCM_LT_RtTrnLmpAtv =getValue(Env_RtTrnLmpAtv);
+    Send_Msg_BCM_601();
+    SetTimer(BCM_601_CYC_Timer,300);  
+  }
+}
+
+/*****************Left Front Tire Temp&Pression**************************************/
+on envVar Env_TireLFPrs
+{
+  Msg_BCM_603.BCM_TIRE_LF_PRS = getValue(Env_TireLFPrs)*10;
+  if((getValue(Env_TireLFPrs) > 4.0)
+    ||(getValue(Env_TireLFPrs) < 1.0)
+    ||(getValue(Env_TireLFTmp) > 70))
+  {
+    putValue(Env_TireLF_Prs_Tmp_ST, 1);
+  }
+  else
+  {
+    putValue(Env_TireLF_Prs_Tmp_ST, 0);
+  }
+  Send_Msg_BCM_603();
+  SetTimer(BCM_603_CYC_Timer,1000);
+}
+
+on envVar Env_TireLFTmp
+{
+  Msg_BCM_603.BCM_TIRE_LF_TMP = getValue(Env_TireLFTmp)+20;
+  if((getValue(Env_TireLFPrs) > 4.0)
+    ||(getValue(Env_TireLFPrs) < 1.0)
+    ||(getValue(Env_TireLFTmp) > 70))
+  {
+    putValue(Env_TireLF_Prs_Tmp_ST, 1);
+  }
+  else
+  {
+    putValue(Env_TireLF_Prs_Tmp_ST, 0);
+  }
+  Send_Msg_BCM_603();
+  SetTimer(BCM_603_CYC_Timer,1000);
+}
+
+on envVar Env_UsrButtonLFPrsMinus
+{
+  if (getValue(this) == 1)
+  {
+    if (getValue(Env_TireLFPrs) >= 0.1)
+    {
+      putValue(Env_TireLFPrs, getValue(Env_TireLFPrs)-0.1);
+    }
+  }
+}
+
+on envVar Env_UsrButtonLFPrsPlus
+{
+  if (getValue(this) == 1)
+  {
+    if (getValue(Env_TireLFPrs) < 9.8)
+    {
+      putValue(Env_TireLFPrs, getValue(Env_TireLFPrs)+0.1);
+    }
+  }
+}
+on envVar Env_UsrButtonLFTmpMinus
+{
+  if (getValue(this) == 1)
+  {
+    if (getValue(Env_TireLFTmp) > -20)
+    {
+      putValue(Env_TireLFTmp, getValue(Env_TireLFTmp)-1);
+    }
+  }
+}
+
+on envVar Env_UsrButtonLFTmpPlus
+{
+  if (getValue(this) == 1)
+  {
+    if (getValue(Env_TireLFTmp) < 107)
+    {
+      putValue(Env_TireLFTmp, getValue(Env_TireLFTmp)+1);
+    }
+  }
+}
+/*****************Left Rear Tire Temp&Pression**************************************/
+on envVar Env_TireLRPrs
+{
+  Msg_BCM_603.BCM_TIRE_LR_PRS = getValue(Env_TireLRPrs)*10;
+  if((getValue(Env_TireLRPrs) > 4.0)
+    ||(getValue(Env_TireLRPrs) < 1.0)
+    ||(getValue(Env_TireLRTmp) > 70))
+  {
+    putValue(Env_TireLR_Prs_Tmp_ST, 1);
+  }
+  else
+  {
+    putValue(Env_TireLR_Prs_Tmp_ST, 0);
+  }
+  Send_Msg_BCM_603();
+  SetTimer(BCM_603_CYC_Timer,1000);
+}
+
+on envVar Env_TireLRTmp
+{
+  Msg_BCM_603.BCM_TIRE_LR_TMP = getValue(Env_TireLRTmp)+20;
+  if((getValue(Env_TireLRPrs) > 4.0)
+    ||(getValue(Env_TireLRPrs) < 1.0)
+    ||(getValue(Env_TireLRTmp) > 70))
+  {
+    putValue(Env_TireLR_Prs_Tmp_ST, 1);
+  }
+  else
+  {
+    putValue(Env_TireLR_Prs_Tmp_ST, 0);
+  }
+  Send_Msg_BCM_603();
+  SetTimer(BCM_603_CYC_Timer,1000);
+}
+
+on envVar Env_UsrButtonLRPrsMinus
+{
+  if (getValue(this) == 1)
+  {
+    if (getValue(Env_TireLRPrs) >= 0.1)
+    {
+      putValue(Env_TireLRPrs, getValue(Env_TireLRPrs)-0.1);
+    }
+  }
+}
+
+on envVar Env_UsrButtonLRPrsPlus
+{
+  if (getValue(this) == 1)
+  {
+    if (getValue(Env_TireLRPrs) < 9.8)
+    {
+      putValue(Env_TireLRPrs, getValue(Env_TireLRPrs)+0.1);
+    }
+  }
+}
+on envVar Env_UsrButtonLRTmpMinus
+{
+  if (getValue(this) == 1)
+  {
+    if (getValue(Env_TireLRTmp) > -20)
+    {
+      putValue(Env_TireLRTmp, getValue(Env_TireLRTmp)-1);
+    }
+  }
+}
+
+on envVar Env_UsrButtonLRTmpPlus
+{
+  if (getValue(this) == 1)
+  {
+    if (getValue(Env_TireLRTmp) < 107)
+    {
+      putValue(Env_TireLRTmp, getValue(Env_TireLRTmp)+1);
+    }
+  }
+}
+
+/*****************Right Front Tire Temp&Pression**************************************/
+on envVar Env_TireRFPrs
+{
+  Msg_BCM_603.BCM_TIRE_RF_PRS = getValue(Env_TireRFPrs)*10;
+  if((getValue(Env_TireRFPrs) > 4.0)
+    ||(getValue(Env_TireRFPrs) < 1.0)
+    ||(getValue(Env_TireRFTmp) > 70))
+  {
+    putValue(Env_TireRF_Prs_Tmp_ST, 1);
+  }
+  else
+  {
+    putValue(Env_TireRF_Prs_Tmp_ST, 0);
+  }
+  Send_Msg_BCM_603();
+  SetTimer(BCM_603_CYC_Timer,1000);
+}
+
+on envVar Env_TireRFTmp
+{
+  Msg_BCM_603.BCM_TIRE_RF_TMP = getValue(Env_TireRFTmp)+20;
+  if((getValue(Env_TireRFPrs) > 4.0)
+    ||(getValue(Env_TireRFPrs) < 1.0)
+    ||(getValue(Env_TireRFTmp) > 70))
+  {
+    putValue(Env_TireRF_Prs_Tmp_ST, 1);
+  }
+  else
+  {
+    putValue(Env_TireRF_Prs_Tmp_ST, 0);
+  }
+  Send_Msg_BCM_603();
+  SetTimer(BCM_603_CYC_Timer,1000);
+}
+
+on envVar Env_UsrButtonRFPrsMinus
+{
+  if (getValue(this) == 1)
+  {
+    if (getValue(Env_TireRFPrs) >= 0.1)
+    {
+      putValue(Env_TireRFPrs, getValue(Env_TireRFPrs)-0.1);
+    }
+  }
+}
+
+on envVar Env_UsrButtonRFPrsPlus
+{
+  if (getValue(this) == 1)
+  {
+    if (getValue(Env_TireRFPrs) < 9.8)
+    {
+      putValue(Env_TireRFPrs, getValue(Env_TireRFPrs)+0.1);
+    }
+  }
+}
+on envVar Env_UsrButtonRFTmpMinus
+{
+  if (getValue(this) == 1)
+  {
+    if (getValue(Env_TireRFTmp) > -20)
+    {
+      putValue(Env_TireRFTmp, getValue(Env_TireRFTmp)-1);
+    }
+  }
+}
+
+on envVar Env_UsrButtonRFTmpPlus
+{
+  if (getValue(this) == 1)
+  {
+    if (getValue(Env_TireRFTmp) < 107)
+    {
+      putValue(Env_TireRFTmp, getValue(Env_TireRFTmp)+1);
+    }
+  }
+}
+
+/*****************Right Rear Tire Temp&Pression**************************************/
+on envVar Env_TireRRPrs
+{
+  Msg_BCM_603.BCM_TIRE_RR_PRS = getValue(Env_TireRRPrs)*10;
+  if((getValue(Env_TireRRPrs) > 4.0)
+    ||(getValue(Env_TireRRPrs) < 1.0)
+    ||(getValue(Env_TireRRTmp) > 70))
+  {
+    putValue(Env_TireRR_Prs_Tmp_ST, 1);
+  }
+  else
+  {
+    putValue(Env_TireRR_Prs_Tmp_ST, 0);
+  }
+  Send_Msg_BCM_603();
+  SetTimer(BCM_603_CYC_Timer,1000);
+}
+
+on envVar Env_TireRRTmp
+{
+  Msg_BCM_603.BCM_TIRE_RR_TMP = getValue(Env_TireRRTmp)+20;
+  if((getValue(Env_TireRRPrs) > 4.0)
+    ||(getValue(Env_TireRRPrs) < 1.0)
+    ||(getValue(Env_TireRRTmp) > 70))
+  {
+    putValue(Env_TireRR_Prs_Tmp_ST, 1);
+  }
+  else
+  {
+    putValue(Env_TireRR_Prs_Tmp_ST, 0);
+  }
+  Send_Msg_BCM_603();
+  SetTimer(BCM_603_CYC_Timer,1000);
+}
+
+on envVar Env_UsrButtonRRPrsMinus
+{
+  if (getValue(this) == 1)
+  {
+    if (getValue(Env_TireRRPrs) >= 0.1)
+    {
+      putValue(Env_TireRRPrs, getValue(Env_TireRRPrs)-0.1);
+    }
+  }
+}
+
+on envVar Env_UsrButtonRRPrsPlus
+{
+  if (getValue(this) == 1)
+  {
+    if (getValue(Env_TireRRPrs) < 9.8)
+    {
+      putValue(Env_TireRRPrs, getValue(Env_TireRRPrs)+0.1);
+    }
+  }
+}
+on envVar Env_UsrButtonRRTmpMinus
+{
+  if (getValue(this) == 1)
+  {
+    if (getValue(Env_TireRRTmp) > -20)
+    {
+      putValue(Env_TireRRTmp, getValue(Env_TireRRTmp)-1);
+    }
+  }
+}
+
+on envVar Env_UsrButtonRRTmpPlus
+{
+  if (getValue(this) == 1)
+  {
+    if (getValue(Env_TireRRTmp) < 107)
+    {
+      putValue(Env_TireRRTmp, getValue(Env_TireRRTmp)+1);
+    }
+  }
+}
+
+
+
+
+on message TCU_602
+{
+  if(this.TCU_DDOOR_OC != getValue(Env_LeftFrontLockAtv))
+  {
+    if(getValue(Env_DDAjrSwAtv) == 1)
+    {  
+      if(getValue(Env_LeftFrontLockAtv) == 1)
+      {  
+          ;
+      }
+    }
+    else
+    {
+       putValue(Env_LeftFrontLockAtv,this.TCU_DDOOR_OC);
+    }  
+  }
+  if(this.TCU_PDOOR_OC != getValue(Env_RightFrontLockAtv))
+  {
+    if(getValue(Env_PDAjrSwAtv) == 1)
+    {
+      if(getValue(Env_RightFrontLockAtv) == 1)
+      {  
+          ;
+      }
+     } 
+    else
+    {  
+      putValue(Env_RightFrontLockAtv,this.TCU_PDOOR_OC);
+    }
+  }
+  if(this.TCU_RLDOOR_OC != getValue(Env_LeftRearLockAtv))
+  {
+    if(getValue(Env_RLDoorAjarSwAct) == 1)
+    {
+      if(getValue(Env_LeftRearLockAtv) == 1)
+      {  
+          ;
+      }
+      
+    }  
+    else
+    {  
+      putValue(Env_LeftRearLockAtv,this.TCU_RLDOOR_OC);
+    }  
+  }
+  if(this.TCU_RRDOOR_OC != getValue(Env_RightRearLockAtv))
+  {
+    if(getValue(Env_RRDoorAjrSwAtv) == 1)
+    {
+      if(getValue(Env_RightRearLockAtv) == 1)
+      {  
+          ;
+      }
+    }
+    else
+    {
+      putValue(Env_RightRearLockAtv,this.TCU_RRDOOR_OC);
+    }
+  }
+  if(this.TCU_TRNKDOOR_OC != getValue(Env_RrCloseLockAtv))
+  {
+      if(getValue(Env_RrClosAjarSwAct) == 1)
+      {
+        if(getValue(Env_RrCloseLockAtv) == 1)
+        {
+          ;
+        }  
+        
+      } 
+      else
+      {
+            putValue(Env_RrCloseLockAtv,this.TCU_TRNKDOOR_OC);
+      }  
+  }
+  /**********************Light Control Rx************************/
+  if(this.TCU_LT_FrFgLtAtv != getValue(Env_FrFgLtIO))
+  {
+    putValue(Env_FrFgLtIO,this.TCU_LT_FrFgLtAtv);
+  }
+  if(this.TCU_LT_HazSwAtv != getValue(Env_HazSwAtv))
+  {
+    putValue(Env_HazSwAtv,this.TCU_LT_HazSwAtv);
+  }
+  if(this.TCU_LT_HiBmAtv != getValue(Env_HiBmIO))
+  {
+    putValue(Env_HiBmIO,this.TCU_LT_HiBmAtv);
+  }
+  if(this.TCU_LT_LftTrnLmpAtv != getValue(Env_LftTrnLmpAtv))
+  {
+    putValue(Env_LftTrnLmpAtv,this.TCU_LT_LftTrnLmpAtv);
+  }
+  if(this.TCU_LT_LowBmAtv != getValue(Env_LowBmAct))
+  {
+    putValue(Env_LowBmAct,this.TCU_LT_LowBmAtv);
+  }
+  if(this.TCU_LT_PrkLtAtv != getValue(Env_PrkLtIO))
+  {
+    putValue(Env_PrkLtIO,this.TCU_LT_PrkLtAtv);
+  }
+  if(this.TCU_LT_RrFgLtAtv != getValue(Env_RrFgLtIO))
+  {
+    putValue(Env_RrFgLtIO,this.TCU_LT_RrFgLtAtv);
+  } 
+  if(this.TCU_LT_RtTrnLmpAtv != getValue(Env_RtTrnLmpAtv))
+  {
+    putValue(Env_RtTrnLmpAtv,this.TCU_LT_RtTrnLmpAtv);
+  }
+  if(this.TCU_IG_Contrl != getValue(Env_UsrPWRON))
+  {
+    putValue(Env_UsrPWRON,this.TCU_IG_Contrl);
+  }
+}
+void Msg_BCM_601_Info_Updata(void)
+{
+  Msg_BCM_601.BCM_IG_Contrl = getValue(Env_UsrPWRON);
+  Msg_BCM_601.BCM_DDOOR_ST = getValue(Env_DDAjrSwAtv);
+  Msg_BCM_601.BCM_PDOOR_ST = getValue(Env_PDAjrSwAtv);
+  Msg_BCM_601.BCM_RLDOOR_ST = getValue(Env_RLDoorAjarSwAct);
+  Msg_BCM_601.BCM_RRDOOR_ST = getValue(Env_RRDoorAjrSwAtv);
+  Msg_BCM_601.BCM_TRNKDOOR_ST = getValue(Env_RrClosAjarSwAct); 
+  if( getValue(Env_DDAjrSwAtv) == 1)
+  {
+    putValue(Env_LeftFrontLockAtv,1);
+  }  
+  Msg_BCM_601.BCM_DDOOR_LOCK_ST = getValue(Env_LeftFrontLockAtv);
+  if( getValue(Env_PDAjrSwAtv) == 1)
+  {
+    putValue(Env_RightFrontLockAtv,1);
+  }  
+  Msg_BCM_601.BCM_PDDOOR_LOCK_ST = getValue(Env_RightFrontLockAtv);
+  if( getValue(Env_RLDoorAjarSwAct) == 1)
+  {
+    putValue(Env_LeftRearLockAtv,1);
+  }  
+  Msg_BCM_601.BCM_RLDOOR_LOCK_ST = getValue(Env_LeftRearLockAtv);
+  if( getValue(Env_RRDoorAjrSwAtv) == 1)
+  {
+    putValue(Env_RightRearLockAtv,1);
+  }  
+  Msg_BCM_601.BCM_RRDOOR_LOCK_ST = getValue(Env_RightRearLockAtv);
+  if( getValue(Env_RrClosAjarSwAct) == 1)
+  {
+    putValue(Env_RrCloseLockAtv,1);
+  } 
+  Msg_BCM_601.BCM_TRNKDOOR_LOCK_ST = getValue(Env_RrCloseLockAtv);  
+  if(getValue(Env_UsrPWRON) == 0)
+  {
+    putValue(Env_TrnsShftLvrPos,0);
+  } 
+  Msg_BCM_601.BCM_TRNS_SHFT_LVR_POS = getValue(Env_TrnsShftLvrPos);
+  if(getValue(Env_UsrPWRON) == 0)
+  {
+    putValue(Env_TrnsShftLvrPos,0);
+  } 
+  Msg_BCM_601.BCM_Accelerator_Pedal = getValue(Env_Accelerator);
+  if(getValue(Env_UsrPWRON) == 0)
+  {
+    putValue(Env_FrFgLtIO,0);
+  } 
+  Msg_BCM_601.BCM_LT_FrFgLtAtv  = getValue(Env_FrFgLtIO);
+  if(getValue(Env_UsrPWRON) == 0)
+  {
+    putValue(Env_HazSwAtv,0);
+  } 
+  Msg_BCM_601.BCM_LT_HazSwAtv = getValue(Env_HazSwAtv);
+  if(getValue(Env_UsrPWRON) == 0)
+  {
+    putValue(Env_HiBmIO,0);
+  } 
+  Msg_BCM_601.BCM_LT_HiBmAtv  = getValue(Env_HiBmIO);
+  if(getValue(Env_UsrPWRON) == 0)
+  {
+    putValue(Env_LftTrnLmpAtv,0);
+  } 
+  Msg_BCM_601.BCM_LT_LftTrnLmpAtv = getValue(Env_LftTrnLmpAtv);
+  if(getValue(Env_UsrPWRON) == 0)
+  {
+    putValue(Env_LowBmAct,0);
+  } 
+  Msg_BCM_601.BCM_LT_LowBmAtv = getValue(Env_LowBmAct);
+  if(getValue(Env_UsrPWRON) == 0)
+  {
+    putValue(Env_PrkLtIO,0);
+  } 
+  Msg_BCM_601.BCM_LT_PrkLtAtv = getValue(Env_PrkLtIO);
+  if(getValue(Env_UsrPWRON) == 0)
+  {
+    putValue(Env_RrFgLtIO,0);
+  } 
+  Msg_BCM_601.BCM_LT_RrFgLtAtv = getValue(Env_RrFgLtIO);
+  if(getValue(Env_UsrPWRON) == 0)
+  {
+    putValue(Env_RtTrnLmpAtv,0);
+  } 
+  Msg_BCM_601.BCM_LT_RtTrnLmpAtv =getValue(Env_RtTrnLmpAtv);
+}
+void Msg_BCM_603_Info_Updata(void)
+{
+  Msg_BCM_603.BCM_TIRE_LF_PRS = getValue(Env_TireLFPrs)*10;
+  Msg_BCM_603.BCM_TIRE_LF_TMP = getValue(Env_TireLFTmp)+20;
+  Msg_BCM_603.BCM_TIRE_LR_PRS = getValue(Env_TireLRPrs)*10;
+  Msg_BCM_603.BCM_TIRE_LR_TMP = getValue(Env_TireLRTmp)+20;
+  Msg_BCM_603.BCM_TIRE_RF_PRS = getValue(Env_TireRFPrs)*10;
+  Msg_BCM_603.BCM_TIRE_RF_TMP = getValue(Env_TireRFTmp)+20;
+  Msg_BCM_603.BCM_TIRE_RR_PRS = getValue(Env_TireRRPrs)*10;
+  Msg_BCM_603.BCM_TIRE_RR_TMP = getValue(Env_TireRRTmp)+20;
+}
+void Send_Msg_BCM_601(void)
+{
+  //if(getValue(Env_UsrPWRON)== 1)
+  {
+    output(Msg_BCM_601);     
+  }  
+}
+void Send_Msg_BCM_603(void)
+{
+  if(getValue(Env_UsrPWRON)== 1)
+  {
+    output(Msg_BCM_603);     
+  }  
+}

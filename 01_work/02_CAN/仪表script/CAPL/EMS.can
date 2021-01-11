@@ -1,0 +1,82 @@
+includes
+{
+  
+}
+
+variables
+{
+  mstimer EMS_CYC_Timer;
+  message EMS_ENGINE_VSPEED Msg_SPEED_3A0;
+
+}
+
+on start
+{
+
+}
+on timer EMS_CYC_Timer
+{
+  if(getvalue(Env_UsrPWRON) == 0)
+  {
+     //putValue(Env_VehicleSpeed,0);
+  } 
+  Msg_SPD_3A0_Info_Updata();
+  Send_Msg_EMS_3A0();
+  SetTimer(EMS_CYC_Timer,20);
+}
+/*********************Power information******************************/
+
+on envVar Env_UsrPWRON
+{
+  if(getValue(this) == 1)
+  {
+    write("MES Power ON !!!!!!!");
+    putValue(Env_Valid_Vehicle_Speed, 1);
+    Msg_SPD_3A0_Info_Updata();
+    Send_Msg_EMS_3A0();
+    SetTimer(EMS_CYC_Timer,20); 
+  }
+  else
+  {
+    Msg_SPEED_3A0.VEHICLE_SPEED = 0;
+    Msg_SPEED_3A0.VALID_VEHICLE_SPEED = 0;
+    output(Msg_SPEED_3A0);  
+    write("EMS Power OFF !!!!!!!");
+  }  
+  //Msg_SPD_3A0_Info_Updata();
+}
+
+on envVar Env_VehicleSpeed
+{
+  if(getvalue(Env_UsrPWRON) == 1)
+  {  
+    putValue(Env_Valid_Vehicle_Speed, 1);
+    Msg_SPEED_3A0.VALID_VEHICLE_SPEED = getValue(Env_Valid_Vehicle_Speed); 
+    Msg_SPEED_3A0.VEHICLE_SPEED = getValue(Env_VehicleSpeed); 
+    SetTimer(EMS_CYC_Timer,20);
+  }
+}
+
+void Msg_SPD_3A0_Info_Updata(void)
+{
+  if(getValue(Env_UsrPWRON) == 0)
+  {
+    putValue(Env_VehicleSpeed, 0);
+    putValue(Env_Valid_Vehicle_Speed, 0);
+  }  
+  else
+  {
+     putValue(Env_Valid_Vehicle_Speed, 1);
+  } 
+  Msg_SPEED_3A0.VEHICLE_SPEED = getValue(Env_VehicleSpeed);
+  Msg_SPEED_3A0.VALID_VEHICLE_SPEED = getValue(Env_Valid_Vehicle_Speed);
+
+}
+void Send_Msg_EMS_3A0(void)
+{
+  if(getValue(Env_UsrPWRON)== 1)
+  {
+    Msg_SPD_3A0_Info_Updata();
+    output(Msg_SPEED_3A0);     
+  }
+}
